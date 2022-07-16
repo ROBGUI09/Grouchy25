@@ -14,12 +14,6 @@ async def on_ready():
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
 	
 @bot.command()
-async def rules(ctx):
-	embed=discord.Embed(title="Правила", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ", description="Правила довольно просты,никакого nsfw контента,без унижения и оскорблений,а также говорить не злоупотребляя матом.Удачи!", color=0)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
-	await ctx.message.reply(embed=embed)
-	
-@bot.command()
 async def info(ctx):
 	embed=discord.Embed(title="Информация", description="Я стал первым приложением,которое было созданно по инициативе Grouchy. На данный момент я являюсь ботом помощником,но возможно скоро вы сможете полноценно со мной поговорить", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ", color=0)
 	embed.add_field(name="Kelk", value="https://t.me/ROBGUI09", inline=True)
@@ -111,7 +105,7 @@ async def hentai(ctx):
 @bot.command()
 async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`")
-	embed.add_field(name="Мои команды", value="`g!rules`, `g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`", inline=False)
+	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`", inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
 	
