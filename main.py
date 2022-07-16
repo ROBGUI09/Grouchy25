@@ -98,9 +98,7 @@ async def sayori(ctx):
 	
 @bot.command()
 async def hentai(ctx):
-	embed=discord.Embed(title="Хороший телеграмм с таким контентом :3", url="https://www.youtube.com/watch?v=PkT0PJwy8mI", description=f"Запрошено {ctx.message.author.mention}", color=0)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
-	await ctx.message.reply(embed=embed)
+	await ctx.message.reply("|| https://cdn.discordapp.com/attachments/997873592303898675/997886931281137826/videoplayback_3.mp4 ||")
 	
 @bot.command()
 async def help(ctx):
