@@ -263,7 +263,7 @@ class Player(wavelink.Player):
         await self.play(self.queue.current_track)
 
 
-class Music(commands.Cog, wavelink.WavelinkMixin):
+class Music(commands.Cog, wavelink.Node):
     def __init__(self, bot):
         self.bot = bot
         self.wavelink = wavelink.Client(bot=bot)
@@ -275,13 +275,13 @@ class Music(commands.Cog, wavelink.WavelinkMixin):
             if not [m for m in before.channel.members if not m.bot]:
                 await self.get_player(member.guild).teardown()
 
-    @wavelink.WavelinkMixin.listener()
+    @wavelink.on_wavelink_node_ready()
     async def on_node_ready(self, node):
         print(f" Wavelink node `{node.identifier}` ready.")
 
-    @wavelink.WavelinkMixin.listener("on_track_stuck")
-    @wavelink.WavelinkMixin.listener("on_track_end")
-    @wavelink.WavelinkMixin.listener("on_track_exception")
+    @wavelink.on_wavelink_track_stuck()
+    @wavelink.on_wavelink_track_end()
+    @wavelink.on_wavelink_track_exception()
     async def on_player_stop(self, node, payload):
         if payload.player.queue.repeat_mode == RepeatMode.ONE:
             await payload.player.repeat_track()
