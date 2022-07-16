@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import random
 from data import *
+from pogoda import get_weather, NotFoundError
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
@@ -104,7 +105,7 @@ async def hentai(ctx):
 @bot.command()
 async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`")
-	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`, `g!8ball`", inline=False)
+	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`, `g!8ball`, `g!weather`", inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
 	
@@ -130,6 +131,20 @@ async def ball(ctx, *arg):
 	embed.add_field(name="Шар ответил:", value=random.choice(ballanswers), inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
+	
+@bot.command()
+async def weather(ctx, *args):
+	arg = " ".join(args)
+	try:
+		weather = get_weather(arg)
+		embed=discord.Embed(description="В "+arg+" сейчас "+weather)
+		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+		await ctx.message.reply(embed=embed)
+	except NotFoundError:
+		embed=discord.Embed(description=":warning: Город \""+arg+"\" не найден!")
+		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+		await ctx.message.reply(embed=embed)
+		
 	
 bot.run(token)
 
