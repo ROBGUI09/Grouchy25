@@ -125,7 +125,7 @@ async def howru(ctx):
 	await ctx.message.reply(random.choice(howrutexts))
 	
 @bot.command(name="8ball")
-async def ball(ctx, arg, *):
+async def ball(ctx, *arg):
 	embed=discord.Embed(title="{ctx.message.author.mention} спросил у магического шара:", description=arg)
 	embed.add_field(name="Шар ответил:", value=random.choice(ballanswers), inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
