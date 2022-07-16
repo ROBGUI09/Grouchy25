@@ -11,7 +11,6 @@ bot.remove_command('help')
 async def on_ready():
 	chan = bot.get_channel(997789286596366386)
 	await chan.send("Бот в сети! :partying_face:")
-	print("К вашим услугам!")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
 	
 @bot.command()
@@ -115,6 +114,10 @@ async def help(ctx):
 	embed.add_field(name="Мои команды", value="`g!rules`, `g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`", inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
+	
+@bot.command()
+async def ping(ctx):
+	await ctx.message.reply(f'Pong! In {round(client.latency * 1000)}ms')
 	
 bot.run(token)
 
