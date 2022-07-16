@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import random
+from data import *
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
@@ -149,6 +150,10 @@ async def hello(ctx):
 async def howru(ctx):
 	texts=["Сойдет","Могло быть лучше...","Отлично","Нормально","Наверное нормально..."]
 	await ctx.message.reply(random.choice(texts))
+	
+@bot.command(name="8ball")
+async def ball(ctx):
+	await ctx.message.reply(random.choice(ballanswers))
 	
 bot.run(token)
 
