@@ -165,10 +165,12 @@ async def play(ctx, url : str):
 		await ctx.send("Wait for the current playing music to end or use the 'stop' command")
 		return
 
-	voiceChannel = ctx.message.author.voice.channel 
-	if voiceChannel is None:
+	voiceChannel = None
+	if ctx.message.author.voice is None:
 		await ctx.send("ты за меня придурка не держи, в войс зайди")
 		return
+	else:
+		voiceChannel = ctx.message.author.voice.channel 
 	await voiceChannel.connect()
 	voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
 
