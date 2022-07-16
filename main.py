@@ -118,33 +118,7 @@ async def donate(ctx):
 	
 @bot.command()
 async def hello(ctx):
-	texts=["Здарова","Привет","Привет, как дела?","Здрасте",
-	       "Hello (English)",
-	       "Ahoj (Czech)",
-	       "Halo (Indonesian)",
-	       "Cześć (Polish)",
-	       "Hej (Danish)",
-	       "Merhaba (Turkish)",
-	       "Yassas (Greek)",
-	       "Ciao (Italian)",
-	       "Olá (Portuguese)",
-	       "Hallå (Swedish)",
-	       "Bonjour (French)",
-	       "Aloha (Hawaiian)",
-	       "Kon’nichiwa (Japanese)",
-	       "Zdrastĭ (Bulgarian)",
-	       "Namaste (Hindi)",
-	       "Sawubona (Zulu)",
-	       "Hola (Spanish)",
-	       "Nĭ Hăo (Mandarin)",
-	       "Xin chào (Vietnamese)",
-	       "Annyeonghaseyo (Korean)",
-	       "Sveiki (Lithuanian)",
-	       "Kaixo (Basque)",
-	       "Hallo (German)",
-	       "Hei (Finnish)",
-	       "Hujambo (Swahili)"]
-	await ctx.message.reply(random.choice(texts))
+	await ctx.message.reply(random.choice(hellotexts))
 	
 @bot.command()
 async def howru(ctx):
