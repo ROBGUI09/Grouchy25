@@ -111,13 +111,17 @@ async def hentai(ctx):
 @bot.command()
 async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`")
-	embed.add_field(name="Мои команды", value="`g!rules`, `g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`", inline=False)
+	embed.add_field(name="Мои команды", value="`g!rules`, `g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`", inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
 	
 @bot.command()
 async def ping(ctx):
 	await ctx.message.reply(f'Понг! За `{round(bot.latency * 1000)}ms` <:SayoriCool:997427409697648690>')
+	
+@bot.command()
+async def donate(ctx):
+	await ctx.message.reply("Вы можете безвозмездно нам задонатить по этому адресу: <https://www.donationalerts.com/r/robert300> :3")
 	
 bot.run(token)
 
