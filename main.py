@@ -117,7 +117,7 @@ async def help(ctx):
 	
 @bot.command()
 async def ping(ctx):
-	await ctx.message.reply(f'Pong! In {round(client.latency * 1000)}ms')
+	await ctx.message.reply(f'Pong! In {round(bot.latency * 1000)}ms')
 	
 bot.run(token)
 
