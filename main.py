@@ -137,7 +137,8 @@ async def weather(ctx, *args):
 	arg = " ".join(args)
 	try:
 		weather = get_weather(arg)
-		embed=discord.Embed(description="В городе "+arg+" сейчас "+weather)
+		icon = ":cloud:" if weather.weather.status == "clouds" else ":question:"
+		embed=discord.Embed(description=icon+" В городе "+weather.location.name+" сейчас "+weather.weather.detailed_status+" ("+weather.weather.status+")")
 		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 		await ctx.message.reply(embed=embed)
 	except NotFoundError:
