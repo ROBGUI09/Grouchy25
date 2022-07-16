@@ -148,8 +148,7 @@ async def hello(ctx):
 	
 @bot.command()
 async def howru(ctx):
-	texts=["Сойдет","Могло быть лучше...","Отлично","Нормально","Наверное нормально..."]
-	await ctx.message.reply(random.choice(texts))
+	await ctx.message.reply(random.choice(howrutexts))
 	
 @bot.command(name="8ball")
 async def ball(ctx):
