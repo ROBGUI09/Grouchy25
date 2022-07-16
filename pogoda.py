@@ -7,4 +7,4 @@ mgr = owm.weather_manager()
 
 def get_weather(city: str):
 	observation = mgr.weather_at_place(city)
-	return observation.weather.detailed_status
+	return observation
