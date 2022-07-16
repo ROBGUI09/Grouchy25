@@ -155,7 +155,7 @@ async def weather(ctx, *args):
 		await ctx.message.reply(embed=embed)
 		
 
-music.setup(bot)
+bot.add_cog(music.Music(bot))
 	
 bot.run(token)
 
