@@ -103,7 +103,7 @@ async def hentai(ctx):
 @bot.command()
 async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`")
-	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`", inline=False)
+	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`", inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
 	
@@ -114,6 +114,41 @@ async def ping(ctx):
 @bot.command()
 async def donate(ctx):
 	await ctx.message.reply("Вы можете безвозмездно нам задонатить по этому адресу: <https://www.donationalerts.com/r/robert300> :3")
+	
+@bot.command()
+async def hello(ctx):
+	texts=["Здарова","Привет","Привет, как дела?","Здрасте",
+	       "Hello (English)",
+	       "Ahoj (Czech)",
+	       "Halo (Indonesian)",
+	       "Cześć (Polish)",
+	       "Hej (Danish)",
+	       "Merhaba (Turkish)",
+	       "Yassas (Greek)",
+	       "Ciao (Italian)",
+	       "Olá (Portuguese)",
+	       "Hallå (Swedish)",
+	       "Bonjour (French)",
+	       "Aloha (Hawaiian)",
+	       "Kon’nichiwa (Japanese)",
+	       "Zdrastĭ (Bulgarian)",
+	       "Namaste (Hindi)",
+	       "Sawubona (Zulu)",
+	       "Hola (Spanish)",
+	       "Nĭ Hăo (Mandarin)",
+	       "Xin chào (Vietnamese)",
+	       "Annyeonghaseyo (Korean)",
+	       "Sveiki (Lithuanian)",
+	       "Kaixo (Basque)",
+	       "Hallo (German)",
+	       "Hei (Finnish)",
+	       "Hujambo (Swahili)"]
+	await ctx.message.reply(random.choice(texts))
+	
+@bot.command()
+async def howru(ctx):
+	texts=["Сойдет","Могло быть лучше...","Отлично","Нормально","Наверное нормально..."]
+	await ctx.message.reply(random.choice(texts))
 	
 bot.run(token)
 
