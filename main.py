@@ -5,6 +5,7 @@ from data import *
 from pogoda import get_weather, NotFoundError
 import music
 import os
+import utils
 
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
@@ -155,6 +156,13 @@ async def weather(ctx, *args):
 		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 		await ctx.message.reply(embed=embed)
 		
+@bot.command()
+async def vip(ctx):
+	vip = utils.check_for_vip(ctx.guild.id)
+	if vip:
+		await ctx.message.reply("Випки нема :<")
+	else:
+		await ctx.message.reply("Випка подключена до")
 
 bot.add_cog(music.Music(bot))
 	
