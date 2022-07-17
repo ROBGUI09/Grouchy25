@@ -16,6 +16,8 @@ bot.remove_command('help')
 
 db = database.Database("../reactionlight.db")
 botcolour = 0
+botname = "By Grouchy and Kelk"
+logo = "https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png"
 
 def system_notification(data):
 	print(data)
