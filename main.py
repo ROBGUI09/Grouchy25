@@ -420,11 +420,11 @@ async def new(ctx):
 		else:
 			await ctx.send(
 				"You are already creating a reaction-role message in this channel. "
-				f"Use another channel or run `{prefix}abort` first."
+				f"Use another channel or run `g!abort` first."
 			)
 	else:
 		await ctx.send(
-			f"You do not have an admin role. You might want to use `{prefix}admin`"
+			f"You do not have an admin role. You might want to use `g!admin`"
 			" first."
 		)
 
@@ -452,7 +452,7 @@ async def edit_selector(ctx):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Type** `{prefix}edit #channelname` to get started. Replace"
+				f"**Type** `g!edit #channelname` to get started. Replace"
 				" `#channelname` with the channel where the reaction-role message you"
 				" wish to edit is located."
 			)
@@ -474,7 +474,7 @@ async def edit_selector(ctx):
 			if len(all_messages) == 1:
 				await ctx.send(
 					"There is only one reaction-role message in this channel."
-					f" **Type**:\n```\n{prefix}edit #{channel.name} // 1 // New Message"
+					f" **Type**:\n```\ng!edit #{channel.name} // 1 // New Message"
 					" // New Embed Title (Optional) // New Embed Description"
 					" (Optional)\n```\nto edit the reaction-role message. You can type"
 					" `none` in any of the argument fields above (e.g. `New Message`)"
@@ -505,7 +505,7 @@ async def edit_selector(ctx):
 
 				await ctx.send(
 					f"There are **{len(all_messages)}** reaction-role messages in this"
-					f" channel. **Type**:\n```\n{prefix}edit #{channel.name} //"
+					f" channel. **Type**:\n```\ng!edit #{channel.name} //"
 					" MESSAGE_NUMBER // New Message // New Embed Title (Optional) //"
 					" New Embed Description (Optional)\n```\nto edit the desired one."
 					" You can type `none` in any of the argument fields above (e.g."
@@ -606,7 +606,7 @@ async def remove_selector_embed(ctx):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Type** `{prefix}rm-embed #channelname` to get started. Replace"
+				f"**Type** `g!rm-embed #channelname` to get started. Replace"
 				" `#channelname` with the channel where the reaction-role message you"
 				" wish to remove its embed is located."
 			)
@@ -628,7 +628,7 @@ async def remove_selector_embed(ctx):
 			if len(all_messages) == 1:
 				await ctx.send(
 					"There is only one reaction-role message in this channel. **Type**:"
-					f"\n```\n{prefix}rm-embed #{channel.name} // 1\n```"
+					f"\n```\ng!rm-embed #{channel.name} // 1\n```"
 					"\nto remove the reaction-role message's embed."
 				)
 			elif len(all_messages) > 1:
@@ -656,7 +656,7 @@ async def remove_selector_embed(ctx):
 
 				await ctx.send(
 					f"There are **{len(all_messages)}** reaction-role messages in this"
-					f" channel. **Type**:\n```\n{prefix}rm-embed #{channel.name} //"
+					f" channel. **Type**:\n```\ng!rm-embed #{channel.name} //"
 					" MESSAGE_NUMBER\n```\nto remove its embed. The list of the"
 					" current reaction-role messages is:\n\n"
 					+ "\n".join(selector_msgs)
@@ -711,7 +711,7 @@ async def remove_selector_embed(ctx):
 					if e.code == 50006:
 						await ctx.send(
 							"You can't remove an embed if its message is empty. Please"
-							f" edit the message first with: \n`{prefix}edit"
+							f" edit the message first with: \n`g!edit"
 							f" #{ctx.message.channel_mentions[0]} //"
 							f" {selector_msg_number} // New Message`"
 						)
@@ -751,11 +751,11 @@ async def set_colour(ctx):
 			except ValueError:
 				await ctx.send(
 					"Please provide a valid hexadecimal value. Example:"
-					f" `{prefix}colour 0xffff00`"
+					f" `g!colour 0xffff00`"
 				)
 		else:
 			await ctx.send(
-				f"Please provide a hexadecimal value. Example: `{prefix}colour"
+				f"Please provide a hexadecimal value. Example: `g!colour"
 				" 0xffff00`"
 			)
 
