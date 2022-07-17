@@ -14,7 +14,7 @@ token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 bot = commands.Bot(command_prefix=('g!'))
 bot.remove_command('help')
 
-db = database.Database(f"../reactionlight.db")
+db = database.Database("../reactionlight.db")
 
 def system_notification(data):
 	print(data)
@@ -64,6 +64,8 @@ async def cleandb():
 				"I do not have access to a message I have created anymore. "
 				"I cannot manage the roles of users reacting to it."
 				f"\n\nID: {message} in {channel.mention}"
+
+				
 
 @bot.event
 async def on_ready():
