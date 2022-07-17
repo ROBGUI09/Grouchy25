@@ -6,6 +6,7 @@ from pogoda import get_weather, NotFoundError
 import music
 import os
 import utils, time
+import asyncio
 
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
@@ -165,6 +166,8 @@ async def vip(ctx):
 		await ctx.message.reply(f"Випка подключена до <t:{vip}> (<t:{vip}:R>)")
 
 bot.add_cog(music.Music(bot))
+	
+loop = asyncio.get_event_loop()
 	
 try:
     loop.run_until_complete(start(token))
