@@ -31,6 +31,7 @@ def isadmin(user):
 		# Error raised from 'fake' users, such as webhooks
 		return False
 
+	'''
 @tasks.loop(hours=24)
 async def cleandb():
 	# Cleans the database by deleting rows of reaction role messages that don't exist anymore
@@ -64,16 +65,15 @@ async def cleandb():
 				"I do not have access to a message I have created anymore. "
 				"I cannot manage the roles of users reacting to it."
 				f"\n\nID: {message} in {channel.mention}"
+	'''
 
 				
-'''
 @bot.event
 async def on_ready():
 	chan = bot.get_channel(997789286596366386)
 	await chan.send("Бот в сети! :partying_face:")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
 	cleandb.start()
-'''
 	
 @bot.command()
 async def info(ctx):
