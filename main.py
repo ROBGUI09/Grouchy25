@@ -163,7 +163,7 @@ async def vip(ctx):
 	if vip < time.time():
 		await ctx.message.reply("Випки нема :<")
 	else:
-		await ctx.message.reply(f"Випка подключена до <t:{vip}> (<t:{vip}:R>)")
+		await ctx.message.reply(f"Випка подключена до <t:{vip}> (истечет <t:{vip}:R>)")
 
 bot.add_cog(music.Music(bot))
 	
