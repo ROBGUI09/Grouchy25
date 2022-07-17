@@ -170,9 +170,9 @@ bot.add_cog(music.Music(bot))
 loop = asyncio.get_event_loop()
 	
 try:
-    loop.run_until_complete(start(token))
+    loop.run_until_complete(bot.start(token))
 except KeyboardInterrupt:
-    loop.run_until_complete(close())
+    loop.run_until_complete(bot.close())
     utils.db.close()
     # cancel all tasks lingering
 finally:
