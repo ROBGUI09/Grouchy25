@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import random
 from data import *
 from pogoda import get_weather, NotFoundError
@@ -7,15 +7,67 @@ import music
 import os
 import utils, time
 import asyncio
-
+import database
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
 bot = commands.Bot(command_prefix=('g!'))
 bot.remove_command('help')
 
+db = database.Database(f"../reactionlight.db")
+
+def system_notification(data):
+	print(data)
+
+def isadmin(user):
+    # Checks if command author has an admin role that was added with rl!admin
+    admins = db.get_admins()
+    if isinstance(admins, Exception):
+        return False
+    try:
+        user_roles = [role.id for role in user.roles]
+        return [admin_role for admin_role in admins if admin_role in user_roles]
+    except AttributeError:
+        # Error raised from 'fake' users, such as webhooks
+        return False
+
+@tasks.loop(hours=24)
+async def cleandb():
+    # Cleans the database by deleting rows of reaction role messages that don't exist anymore
+    messages = db.fetch_all_messages()
+    if isinstance(messages, Exception):
+        await system_notification(
+            "Database error when fetching messages during database"
+            f" cleaning:\n```\n{messages}\n```"
+        )
+        return
+    for message in messages:
+        try:
+            channel_id = messages[message]
+            channel = bot.get_channel(channel_id)
+            await channel.fetch_message(message)
+        except discord.NotFound as e:
+            if e.code == 10008 or e.code == 10003:
+                delete = db.delete(message)
+                if isinstance(delete, Exception):
+                    await system_notification(
+                        "Database error when deleting messages during database"
+                        f" cleaning:\n```\n{delete}\n```"
+                    )
+                    return
+                await system_notification(
+                    "I deleted the database entries of a message that was removed."
+                    f"\n\nID: {message} in {channel.mention}"
+                )
+        except discord.Forbidden:
+            await system_notification(
+                "I do not have access to a message I have created anymore. "
+                "I cannot manage the roles of users reacting to it."
+                f"\n\nID: {message} in {channel.mention}"
+
 @bot.event
 async def on_ready():
+	cleandb.start()
 	chan = bot.get_channel(997789286596366386)
 	await chan.send("Бот в сети! :partying_face:")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
@@ -164,6 +216,673 @@ async def vip(ctx):
 		await ctx.message.reply("Випки нема :<")
 	else:
 		await ctx.message.reply(f"Випка подключена до <t:{vip}> (истечет <t:{vip}:R>)")
+		
+		
+@bot.event
+async def on_message(message):
+    await bot.process_commands(message)
+
+    if isadmin(message.author):
+        user = str(message.author.id)
+        channel = str(message.channel.id)
+        step = db.step(user, channel)
+        msg = message.content.split()
+
+        if step is not None:
+            # Checks if the setup process was started before.
+            # If it was not, it ignores the message.
+            if step == 0:
+                db.step0(user, channel)
+            elif step == 1:
+                # The channel the message needs to be sent to is stored
+                # Advances to step two
+                try:
+                    server = bot.get_guild(message.guild.id)
+                    bot_user = server.get_member(bot.user.id)
+                    target_channel = message.channel_mentions[0].id
+                    bot_permissions = bot.get_channel(target_channel).permissions_for(
+                        bot_user
+                    )
+                    writable = bot_permissions.read_messages
+                    readable = bot_permissions.view_channel
+                    if not writable or not readable:
+                        await message.channel.send(
+                            "I cannot read or send messages in that channel."
+                        )
+                        return
+                except IndexError:
+                    await message.channel.send("The channel you mentioned is invalid.")
+                    return
+
+                db.step1(user, channel, target_channel)
+                await message.channel.send(
+                    "Attach roles and emojis separated by one space (one combination"
+                    " per message). When you are done type `done`. Example:\n:smile:"
+                    " `@Role`"
+                )
+            elif step == 2:
+                if msg[0].lower() != "done":
+                    # Stores reaction-role combinations until "done" is received
+                    try:
+                        reaction = msg[0]
+                        role = message.role_mentions[0].id
+                        await message.add_reaction(reaction)
+                        db.step2(user, channel, role, reaction)
+                    except IndexError:
+                        await message.channel.send(
+                            "Mention a role after the reaction. Example:\n:smile:"
+                            " `@Role`"
+                        )
+                    except discord.HTTPException:
+                        await message.channel.send(
+                            "You can only use reactions uploaded to this server or"
+                            " standard emojis."
+                        )
+                else:
+                    # Advances to step three
+                    db.step2(user, channel, done=True)
+
+                    selector_embed = discord.Embed(
+                        title="Embed_title",
+                        description="Embed_content",
+                        colour=botcolour,
+                    )
+                    selector_embed.set_footer(text=f"{botname}", icon_url=logo)
+                    await message.channel.send(
+                        "What would you like the message to say?\nFormatting is:"
+                        " `Message // Embed_title // Embed_content`.\n\n`Embed_title`"
+                        " and `Embed_content` are optional. You can type `none` in any"
+                        " of the argument fields above (e.g. `Embed_title`) to make the"
+                        " bot ignore it.\n\n\nMessage",
+                        embed=selector_embed,
+                    )
+            elif step == 3:
+                # Receives the title and description of the reaction-role message
+                # If the formatting is not correct it reminds the user of it
+                msg_values = message.content.split(" // ")
+                selector_msg_body = (
+                    msg_values[0] if msg_values[0].lower() != "none" else None
+                )
+                selector_embed = discord.Embed(colour=botcolour)
+                selector_embed.set_footer(text=f"{botname}", icon_url=logo)
+                if len(msg_values) > 1:
+
+                    if msg_values[1].lower() != "none":
+                        selector_embed.title = msg_values[1]
+                    if len(msg_values) > 2 and msg_values[2].lower() != "none":
+                        selector_embed.description = msg_values[2]
+
+                # Prevent sending an empty embed instead of removing it
+                selector_embed = (
+                    selector_embed
+                    if selector_embed.title or selector_embed.description
+                    else None
+                )
+
+                if selector_msg_body or selector_embed:
+                    target_channel = bot.get_channel(
+                        db.get_targetchannel(user, channel)
+                    )
+                    selector_msg = None
+                    try:
+                        selector_msg = await target_channel.send(
+                            content=selector_msg_body, embed=selector_embed
+                        )
+                    except discord.Forbidden:
+                        await message.channel.send(
+                            "I don't have permission to send selector_msg messages to"
+                            f" the channel {target_channel.mention}."
+                        )
+                    if isinstance(selector_msg, discord.Message):
+                        combos = db.get_combos(user, channel)
+                        error = db.end_creation(user, channel, selector_msg.id)
+                        if error and system_channel:
+                            await message.channel.send(
+                                "I could not commit the changes to the database. Check"
+                                f" {system_channel.mention} for more information."
+                            )
+                            await system_notification(
+                                f"Database error:\n```\n{error}\n```"
+                            )
+                        elif error:
+                            await message.channel.send(
+                                "I could not commit the changes to the database."
+                            )
+                        for reaction in combos:
+                            try:
+                                await selector_msg.add_reaction(reaction)
+                            except discord.Forbidden:
+                                await message.channel.send(
+                                    "I don't have permission to react to messages from"
+                                    f" the channel {target_channel.mention}."
+                                )
+                else:
+                    await message.channel.send(
+                        "You can't use an empty message as a role-reaction message."
+                    )
+
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    reaction = str(payload.emoji)
+    msg_id = payload.message_id
+    ch_id = payload.channel_id
+    user_id = payload.user_id
+    guild_id = payload.guild_id
+    exists = db.exists(msg_id)
+    if isinstance(exists, Exception):
+        await system_notification(
+            f"Database error after a user added a reaction:\n```\n{exists}\n```"
+        )
+        return
+    elif exists:
+        # Checks that the message that was reacted to is a reaction-role message managed by the bot
+        reactions = db.get_reactions(msg_id)
+        if isinstance(reactions, Exception):
+            await system_notification(
+                f"Database error when getting reactions:\n```\n{reactions}\n```"
+            )
+            return
+        ch = bot.get_channel(ch_id)
+        msg = await ch.fetch_message(msg_id)
+        user = bot.get_user(user_id)
+        if reaction not in reactions:
+            # Removes reactions added to the reaction-role message that are not connected to any role
+            await msg.remove_reaction(reaction, user)
+        else:
+            # Gives role if it has permissions, else 403 error is raised
+            role_id = reactions[reaction]
+            server = bot.get_guild(guild_id)
+            member = server.get_member(user_id)
+            role = discord.utils.get(server.roles, id=role_id)
+            if user_id != bot.user.id:
+                try:
+                    await member.add_roles(role)
+                except discord.Forbidden:
+                    await system_notification(
+                        "Someone tried to add a role to themselves but I do not have"
+                        " permissions to add it. Ensure that I have a role that is"
+                        " hierarchically higher than the role I have to assign, and"
+                        " that I have the `Manage Roles` permission."
+                    )
+
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    reaction = str(payload.emoji)
+    msg_id = payload.message_id
+    user_id = payload.user_id
+    guild_id = payload.guild_id
+    exists = db.exists(msg_id)
+    if isinstance(exists, Exception):
+        await system_notification(
+            f"Database error after a user removed a reaction:\n```\n{exists}\n```"
+        )
+        return
+    elif exists:
+        # Checks that the message that was unreacted to is a reaction-role message managed by the bot
+        reactions = db.get_reactions(msg_id)
+        if isinstance(reactions, Exception):
+            await system_notification(
+                f"Database error when getting reactions:\n```\n{reactions}\n```"
+            )
+            return
+        if reaction in reactions:
+            role_id = reactions[reaction]
+            # Removes role if it has permissions, else 403 error is raised
+            server = bot.get_guild(guild_id)
+            member = server.get_member(user_id)
+            role = discord.utils.get(server.roles, id=role_id)
+            try:
+                await member.remove_roles(role)
+            except discord.Forbidden:
+                await system_notification(
+                    "Someone tried to remove a role from themselves but I do not have"
+                    " permissions to remove it. Ensure that I have a role that is"
+                    " hierarchically higher than the role I have to remove, and that I"
+                    " have the `Manage Roles` permission."
+                )
+
+
+@bot.command(name="rr-new")
+async def new(ctx):
+    if isadmin(ctx.message.author):
+        # Starts setup process and the bot starts to listen to the user in that channel
+        # For future prompts (see: "async def on_message(message)")
+        started = db.start_creation(ctx.message.author.id, ctx.message.channel.id)
+        if started:
+            await ctx.send("Mention the #channel where to send the auto-role message.")
+        else:
+            await ctx.send(
+                "You are already creating a reaction-role message in this channel. "
+                f"Use another channel or run `{prefix}abort` first."
+            )
+    else:
+        await ctx.send(
+            f"You do not have an admin role. You might want to use `{prefix}admin`"
+            " first."
+        )
+
+
+@bot.command(name="rr-abort")
+async def abort(ctx):
+    if isadmin(ctx.message.author):
+        # Aborts setup process
+        aborted = db.abort(ctx.message.author.id, ctx.message.channel.id)
+        if aborted:
+            await ctx.send("Reaction-role message creation aborted.")
+        else:
+            await ctx.send(
+                "There are no reaction-role message creation processes started by you"
+                " in this channel."
+            )
+    else:
+        await ctx.send(f"You do not have an admin role.")
+
+
+@bot.command(name="rr-edit")
+async def edit_selector(ctx):
+    if isadmin(ctx.message.author):
+        # Reminds user of formatting if it is wrong
+        msg_values = ctx.message.content.split()
+        if len(msg_values) < 2:
+            await ctx.send(
+                f"**Type** `{prefix}edit #channelname` to get started. Replace"
+                " `#channelname` with the channel where the reaction-role message you"
+                " wish to edit is located."
+            )
+            return
+        elif len(msg_values) == 2:
+            try:
+                channel_id = ctx.message.channel_mentions[0].id
+            except IndexError:
+                await ctx.send("You need to mention a channel.")
+                return
+
+            all_messages = db.fetch_messages(channel_id)
+            if isinstance(all_messages, Exception):
+                await system_notification(
+                    f"Database error when fetching messages:\n```\n{all_messages}\n```"
+                )
+                return
+            channel = bot.get_channel(channel_id)
+            if len(all_messages) == 1:
+                await ctx.send(
+                    "There is only one reaction-role message in this channel."
+                    f" **Type**:\n```\n{prefix}edit #{channel.name} // 1 // New Message"
+                    " // New Embed Title (Optional) // New Embed Description"
+                    " (Optional)\n```\nto edit the reaction-role message. You can type"
+                    " `none` in any of the argument fields above (e.g. `New Message`)"
+                    " to make the bot ignore it."
+                )
+            elif len(all_messages) > 1:
+                selector_msgs = []
+                counter = 1
+                for msg_id in all_messages:
+                    try:
+                        old_msg = await channel.fetch_message(int(msg_id))
+                    except discord.NotFound:
+                        # Skipping reaction-role messages that might have been deleted without updating CSVs
+                        continue
+                    except discord.Forbidden:
+                        ctx.send(
+                            "I do not have permissions to edit a reaction-role message"
+                            f" that I previously created.\n\nID: {msg_id} in"
+                            f" {channel.mention}"
+                        )
+                        continue
+                    entry = (
+                        f"`{counter}`"
+                        f" {old_msg.embeds[0].title if old_msg.embeds else old_msg.content}"
+                    )
+                    selector_msgs.append(entry)
+                    counter += 1
+
+                await ctx.send(
+                    f"There are **{len(all_messages)}** reaction-role messages in this"
+                    f" channel. **Type**:\n```\n{prefix}edit #{channel.name} //"
+                    " MESSAGE_NUMBER // New Message // New Embed Title (Optional) //"
+                    " New Embed Description (Optional)\n```\nto edit the desired one."
+                    " You can type `none` in any of the argument fields above (e.g."
+                    " `New Message`) to make the bot ignore it. The list of the"
+                    " current reaction-role messages is:\n\n"
+                    + "\n".join(selector_msgs)
+                )
+            else:
+                await ctx.send("There are no reaction-role messages in that channel.")
+        elif len(msg_values) > 2:
+            try:
+                # Tries to edit the reaction-role message
+                # Raises errors if the channel sent was invalid or if the bot cannot edit the message
+                channel_id = ctx.message.channel_mentions[0].id
+                channel = bot.get_channel(channel_id)
+                msg_values = ctx.message.content.split(" // ")
+                selector_msg_number = msg_values[1]
+                all_messages = db.fetch_messages(channel_id)
+                if isinstance(all_messages, Exception):
+                    await system_notification(
+                        "Database error when fetching"
+                        f" messages:\n```\n{all_messages}\n```"
+                    )
+                    return
+                counter = 1
+
+                # Loop through all msg_ids and stops when the counter matches the user input
+                if all_messages:
+                    message_to_edit_id = None
+                    for msg_id in all_messages:
+                        if str(counter) == selector_msg_number:
+                            message_to_edit_id = msg_id
+                            break
+                        counter += 1
+                else:
+                    await ctx.send(
+                        "You selected a reaction-role message that does not exist."
+                    )
+                    return
+
+                if message_to_edit_id:
+                    old_msg = await channel.fetch_message(int(message_to_edit_id))
+                else:
+                    await ctx.send(
+                        "Select a valid reaction-role message number (i.e. the number"
+                        " to the left of the reaction-role message content in the list"
+                        " above)."
+                    )
+                    return
+
+                await old_msg.edit(suppress=False)
+                selector_msg_new_body = (
+                    msg_values[2] if msg_values[2].lower() != "none" else None
+                )
+                selector_embed = discord.Embed()
+                if len(msg_values) == 3 and old_msg.embeds:
+                    selector_embed = old_msg.embeds[0]
+                if len(msg_values) > 3 and msg_values[3].lower() != "none":
+                    selector_embed.title = msg_values[3]
+                    selector_embed.colour = botcolour
+                    if old_msg.embeds and len(msg_values) == 4:
+                        selector_embed.description = old_msg.embeds[0].description
+                if len(msg_values) > 4 and msg_values[4].lower() != "none":
+                    selector_embed.description = msg_values[4]
+                    selector_embed.colour = botcolour
+
+                # Prevent sending an empty embed instead of removing it
+                selector_embed = (
+                    selector_embed
+                    if selector_embed.title or selector_embed.description
+                    else None
+                )
+
+                if selector_msg_new_body or selector_embed:
+                    await old_msg.edit(
+                        content=selector_msg_new_body, embed=selector_embed
+                    )
+                    await ctx.send("Message edited.")
+                else:
+                    await ctx.send(
+                        "You can't use an empty message as role-reaction message."
+                    )
+
+            except IndexError:
+                await ctx.send("The channel you mentioned is invalid.")
+
+            except discord.Forbidden:
+                await ctx.send("I do not have permissions to edit the message.")
+
+    else:
+        await ctx.send("You do not have an admin role.")
+
+
+@bot.command(name="rm-embed")
+async def remove_selector_embed(ctx):
+    if isadmin(ctx.message.author):
+        # Reminds user of formatting if it is wrong
+        msg_values = ctx.message.content.split()
+        if len(msg_values) < 2:
+            await ctx.send(
+                f"**Type** `{prefix}rm-embed #channelname` to get started. Replace"
+                " `#channelname` with the channel where the reaction-role message you"
+                " wish to remove its embed is located."
+            )
+            return
+        elif len(msg_values) == 2:
+            try:
+                channel_id = ctx.message.channel_mentions[0].id
+            except IndexError:
+                await ctx.send("The channel you mentioned is invalid.")
+                return
+
+            channel = bot.get_channel(channel_id)
+            all_messages = db.fetch_messages(channel_id)
+            if isinstance(all_messages, Exception):
+                await system_notification(
+                    f"Database error when fetching messages:\n```\n{all_messages}\n```"
+                )
+                return
+            if len(all_messages) == 1:
+                await ctx.send(
+                    "There is only one reaction-role message in this channel. **Type**:"
+                    f"\n```\n{prefix}rm-embed #{channel.name} // 1\n```"
+                    "\nto remove the reaction-role message's embed."
+                )
+            elif len(all_messages) > 1:
+                selector_msgs = []
+                counter = 1
+                for msg_id in all_messages:
+                    try:
+                        old_msg = await channel.fetch_message(int(msg_id))
+                    except discord.NotFound:
+                        # Skipping reaction-role messages that might have been deleted without updating the DB
+                        continue
+                    except discord.Forbidden:
+                        ctx.send(
+                            "I do not have permissions to edit a reaction-role message"
+                            f" that I previously created.\n\nID: {msg_id} in"
+                            f" {channel.mention}"
+                        )
+                        continue
+                    entry = (
+                        f"`{counter}`"
+                        f" {old_msg.embeds[0].title if old_msg.embeds else old_msg.content}"
+                    )
+                    selector_msgs.append(entry)
+                    counter += 1
+
+                await ctx.send(
+                    f"There are **{len(all_messages)}** reaction-role messages in this"
+                    f" channel. **Type**:\n```\n{prefix}rm-embed #{channel.name} //"
+                    " MESSAGE_NUMBER\n```\nto remove its embed. The list of the"
+                    " current reaction-role messages is:\n\n"
+                    + "\n".join(selector_msgs)
+                )
+            else:
+                await ctx.send("There are no reaction-role messages in that channel.")
+        elif len(msg_values) > 2:
+            try:
+                # Tries to edit the reaction-role message
+                # Raises errors if the channel sent was invalid or if the bot cannot edit the message
+                channel_id = ctx.message.channel_mentions[0].id
+                channel = bot.get_channel(channel_id)
+                msg_values = ctx.message.content.split(" // ")
+                selector_msg_number = msg_values[1]
+                all_messages = db.fetch_messages(channel_id)
+                if isinstance(all_messages, Exception):
+                    await system_notification(
+                        "Database error when fetching"
+                        f" messages:\n```\n{all_messages}\n```"
+                    )
+                    return
+                counter = 1
+
+                # Loop through all msg_ids and stops when the counter matches the user input
+                if all_messages:
+                    message_to_edit_id = None
+                    for msg_id in all_messages:
+                        if str(counter) == selector_msg_number:
+                            message_to_edit_id = msg_id
+                            break
+                        counter += 1
+                else:
+                    await ctx.send(
+                        "You selected a reaction-role message that does not exist."
+                    )
+                    return
+
+                if message_to_edit_id:
+                    old_msg = await channel.fetch_message(int(message_to_edit_id))
+                else:
+                    await ctx.send(
+                        "Select a valid reaction-role message number (i.e. the number"
+                        " to the left of the reaction-role message content in the list"
+                        " above)."
+                    )
+                    return
+
+                try:
+                    await old_msg.edit(embed=None)
+                    await ctx.send("Embed Removed.")
+                except discord.HTTPException as e:
+                    if e.code == 50006:
+                        await ctx.send(
+                            "You can't remove an embed if its message is empty. Please"
+                            f" edit the message first with: \n`{prefix}edit"
+                            f" #{ctx.message.channel_mentions[0]} //"
+                            f" {selector_msg_number} // New Message`"
+                        )
+                    else:
+                        await ctx.send(str(e))
+
+            except IndexError:
+                await ctx.send("The channel you mentioned is invalid.")
+
+            except discord.Forbidden:
+                await ctx.send("I do not have permissions to edit the message.")
+
+    else:
+        await ctx.send("You do not have an admin role.")
+
+@bot.command(name="rr-colour")
+async def set_colour(ctx):
+    if isadmin(ctx.message.author):
+        msg = ctx.message.content.split()
+        args = len(msg) - 1
+        if args:
+            global botcolour
+            colour = msg[1]
+            try:
+                botcolour = discord.Colour(int(colour, 16))
+
+                config["server"]["colour"] = colour
+                with open(f"{directory}/config.ini", "w") as configfile:
+                    config.write(configfile)
+
+                example = discord.Embed(
+                    title="Example embed",
+                    description="This embed has a new colour!",
+                    colour=botcolour,
+                )
+                await ctx.send("Colour changed.", embed=example)
+            except ValueError:
+                await ctx.send(
+                    "Please provide a valid hexadecimal value. Example:"
+                    f" `{prefix}colour 0xffff00`"
+                )
+        else:
+            await ctx.send(
+                f"Please provide a hexadecimal value. Example: `{prefix}colour"
+                " 0xffff00`"
+            )
+
+@bot.command(name="admin")
+@commands.has_permissions(administrator=True)
+async def add_admin(ctx):
+    # Adds an admin role ID to the database
+    try:
+        role = ctx.message.role_mentions[0].id
+    except IndexError:
+        try:
+            role = int(ctx.message.content.split()[1])
+        except ValueError:
+            await ctx.send("Please mention a valid @Role or role ID.")
+            return
+        except IndexError:
+            await ctx.send("Please mention a @Role or role ID.")
+            return
+    add = db.add_admin(role)
+    if isinstance(add, Exception):
+        await system_notification(
+            f"Database error when adding a new admin:\n```\n{add}\n```"
+        )
+        return
+    await ctx.send("Added the role to my admin list.")
+
+
+@bot.command(name="rm-admin")
+@commands.has_permissions(administrator=True)
+async def remove_admin(ctx):
+    # Removes an admin role ID from the database
+    try:
+        role = ctx.message.role_mentions[0].id
+    except IndexError:
+        try:
+            role = int(ctx.message.content.split()[1])
+        except ValueError:
+            await ctx.send("Please mention a valid @Role or role ID.")
+            return
+        except IndexError:
+            await ctx.send("Please mention a @Role or role ID.")
+            return
+    remove = db.remove_admin(role)
+    if isinstance(remove, Exception):
+        await system_notification(
+            f"Database error when removing an admin:\n```\n{remove}\n```"
+        )
+        return
+    await ctx.send("Removed the role from my admin list.")
+
+
+@bot.command(name="adminlist")
+@commands.has_permissions(administrator=True)
+async def list_admin(ctx):
+    # Lists all admin IDs in the database, mentioning them if possible
+    admin_ids = db.get_admins()
+    if isinstance(admin_ids, Exception):
+        await system_notification(
+            f"Database error when fetching admins:\n```\n{admin_ids}\n```"
+        )
+        return
+    server = bot.get_guild(ctx.message.guild.id)
+    local_admins = []
+    foreign_admins = []
+    for admin_id in admin_ids:
+        role = discord.utils.get(server.roles, id=admin_id)
+        if role is not None:
+            local_admins.append(role.mention)
+        else:
+            foreign_admins.append(f"`{admin_id}`")
+
+    if local_admins and foreign_admins:
+        await ctx.send(
+            "The bot admins on this server are:\n- "
+            + "\n- ".join(local_admins)
+            + "\n\nThe bot admins from other servers are:\n- "
+            + "\n- ".join(foreign_admins)
+        )
+    elif local_admins and not foreign_admins:
+        await ctx.send(
+            "The bot admins on this server are:\n- "
+            + "\n- ".join(local_admins)
+            + "\n\nThere are no bot admins from other servers."
+        )
+    elif not local_admins and foreign_admins:
+        await ctx.send(
+            "There are no bot admins on this server.\n\nThe bot admins from other"
+            " servers are:\n- "
+            + "\n- ".join(foreign_admins)
+        )
+    else:
+        await ctx.send("There are no bot admins registered.")
 
 bot.add_cog(music.Music(bot))
 	
