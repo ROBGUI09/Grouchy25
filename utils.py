@@ -1,19 +1,11 @@
-from tinydb import TinyDB, Query
+import sqlite3
 import time
-db = TinyDB('../database.json')
-query = Query()
 
-def check_for(guild_id, query, value):
-  result = db.search(query.guild_id == guild_id)
-  if result == []:
-    db.insert({'guild_id': guild_id})
-    return False
-  else:
-    if 'query' not in result[0]: return False
-    if result[0]['query'] == value:
-      return True
+db = sqlite3.connect('../grouchy.db')
+cur = db.cursor()
     
 def check_for_vip(guild_id):
-  result = db.search(query.guild_id == guild_id)
-  
-  
+  for row in cur.execute('SELECT * FROM guilds WHERE id=?',(guild_id,)):
+    return row[1] > time.time()
+  cur.execute("INSERT INTO guilds VALUES (?,0)",(guild_id,))
+  cur.commit()
