@@ -250,7 +250,7 @@ async def on_message(message):
 					selector_embed = discord.Embed(
 						title="Embed_title",
 						description="Embed_content",
-						colour=botcolour,
+						colour=0,
 					)
 					selector_embed.set_footer(text=f"{botname}", icon_url=logo)
 					await message.channel.send(
@@ -268,7 +268,7 @@ async def on_message(message):
 				selector_msg_body = (
 					msg_values[0] if msg_values[0].lower() != "none" else None
 				)
-				selector_embed = discord.Embed(colour=botcolour)
+				selector_embed = discord.Embed(colour=0)
 				selector_embed.set_footer(text=f"{botname}", icon_url=logo)
 				if len(msg_values) > 1:
 
@@ -565,12 +565,12 @@ async def edit_selector(ctx):
 					selector_embed = old_msg.embeds[0]
 				if len(msg_values) > 3 and msg_values[3].lower() != "none":
 					selector_embed.title = msg_values[3]
-					selector_embed.colour = botcolour
+					selector_embed.colour = 0
 					if old_msg.embeds and len(msg_values) == 4:
 						selector_embed.description = old_msg.embeds[0].description
 				if len(msg_values) > 4 and msg_values[4].lower() != "none":
 					selector_embed.description = msg_values[4]
-					selector_embed.colour = botcolour
+					selector_embed.colour = 0
 
 				# Prevent sending an empty embed instead of removing it
 				selector_embed = (
@@ -733,10 +733,10 @@ async def set_colour(ctx):
 		msg = ctx.message.content.split()
 		args = len(msg) - 1
 		if args:
-			global botcolour
+			global 0
 			colour = msg[1]
 			try:
-				botcolour = discord.Colour(int(colour, 16))
+				0 = discord.Colour(int(colour, 16))
 
 				config["server"]["colour"] = colour
 				with open(f"{directory}/config.ini", "w") as configfile:
@@ -745,7 +745,7 @@ async def set_colour(ctx):
 				example = discord.Embed(
 					title="Example embed",
 					description="This embed has a new colour!",
-					colour=botcolour,
+					colour=0,
 				)
 				await ctx.send("Colour changed.", embed=example)
 			except ValueError:
