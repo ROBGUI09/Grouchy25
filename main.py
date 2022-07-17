@@ -30,50 +30,12 @@ def isadmin(user):
 	except AttributeError:
 		# Error raised from 'fake' users, such as webhooks
 		return False
-
-	'''
-@tasks.loop(hours=24)
-async def cleandb():
-	# Cleans the database by deleting rows of reaction role messages that don't exist anymore
-	messages = db.fetch_all_messages()
-	if isinstance(messages, Exception):
-		await system_notification(
-			"Database error when fetching messages during database"
-			f" cleaning:\n```\n{messages}\n```"
-		)
-		return
-	for message in messages:
-		try:
-			channel_id = messages[message]
-			channel = bot.get_channel(channel_id)
-			await channel.fetch_message(message)
-		except discord.NotFound as e:
-			if e.code == 10008 or e.code == 10003:
-				delete = db.delete(message)
-				if isinstance(delete, Exception):
-					await system_notification(
-						"Database error when deleting messages during database"
-						f" cleaning:\n```\n{delete}\n```"
-					)
-					return
-				await system_notification(
-					"I deleted the database entries of a message that was removed."
-					f"\n\nID: {message} in {channel.mention}"
-				)
-		except discord.Forbidden:
-			await system_notification(
-				"I do not have access to a message I have created anymore. "
-				"I cannot manage the roles of users reacting to it."
-				f"\n\nID: {message} in {channel.mention}"
-	'''
-
 				
 @bot.event
 async def on_ready():
 	chan = bot.get_channel(997789286596366386)
 	await chan.send("Бот в сети! :partying_face:")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
-	cleandb.start()
 	
 @bot.command()
 async def info(ctx):
