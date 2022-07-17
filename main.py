@@ -5,7 +5,7 @@ from data import *
 from pogoda import get_weather, NotFoundError
 import music
 import os
-import utils
+import utils, time
 
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
@@ -159,12 +159,19 @@ async def weather(ctx, *args):
 @bot.command()
 async def vip(ctx):
 	vip = utils.check_for_vip(ctx.guild.id)
-	if vip:
+	if vip < time.time():
 		await ctx.message.reply("Випки нема :<")
 	else:
-		await ctx.message.reply("Випка подключена до")
+		await ctx.message.reply(f"Випка подключена до <t:{vip}> (<t:{vip}:R>)")
 
 bot.add_cog(music.Music(bot))
 	
-bot.run(token)
+try:
+    loop.run_until_complete(start(token))
+except KeyboardInterrupt:
+    loop.run_until_complete(close())
+    utils.db.close()
+    # cancel all tasks lingering
+finally:
+    loop.close()
 
