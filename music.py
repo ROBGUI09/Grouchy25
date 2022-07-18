@@ -317,6 +317,8 @@ class Music(commands.Cog):
             if before.channel is not None and after.channel is None:
                 await ctx.voice_state.stop()
                 del self.voice_states[ctx.guild.id]
+            elif before.channel is None and after.channel is not None:
+                await ctx.guild.change_voice_state(channel=after.channel, self_mute=False, self_deaf=True)
 
     @commands.command(name='leave', aliases=['disconnect'])
     async def _leave(self, ctx: commands.Context):
