@@ -315,8 +315,7 @@ class Music(commands.Cog):
     async def on_voice_state_update(self, member, before, after):
         if member == self.bot.user:
             if before.channel is not None and after.channel is None:
-                await ctx.voice_state.stop()
-                del self.voice_states[ctx.guild.id]
+                del self.voice_states[member.guild.id]
             elif before.channel is None and after.channel is not None:
                 await ctx.guild.change_voice_state(channel=after.channel, self_mute=False, self_deaf=True)
 
