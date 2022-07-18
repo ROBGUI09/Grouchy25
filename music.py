@@ -214,8 +214,7 @@ class VoiceState:
 
     async def audio_player_task(self):
         while True:
-            if not self.loop:
-                self.next.clear()
+            self.next.clear()
 
             # Try to get the next song within 3 minutes.
             # If no song will be added to the queue in time,
@@ -224,7 +223,6 @@ class VoiceState:
             try:
                 async with timeout(180):  # 3 minutes
                     self.current = await self.songs.get()
-                    self._current = self.current
             except asyncio.TimeoutError:
                 self.bot.loop.create_task(self.stop())
                 return
