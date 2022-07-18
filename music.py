@@ -214,7 +214,8 @@ class VoiceState:
 
     async def audio_player_task(self):
         while True:
-            self.next.clear()
+            if not self.loop:
+                self.next.clear()
 
             # Try to get the next song within 3 minutes.
             # If no song will be added to the queue in time,
@@ -237,8 +238,7 @@ class VoiceState:
         if error:
             raise VoiceError(str(error))
 
-        if not self.loop:
-            self.next.set()
+        self.next.set()
 
     def skip(self):
         self.skip_votes.clear()
