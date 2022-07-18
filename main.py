@@ -8,6 +8,7 @@ import os
 import utils, time
 import asyncio
 import database
+import voice
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
@@ -133,6 +134,8 @@ async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`")
 	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`, `g!8ball`, `g!weather`", inline=False)
 	embed.add_field(name="Музыка", value="`g!join`, `g!summon`, `g!leave`, `g!volume`, `g!now`, `g!pause`, `g!resume`, `g!stop`, `g!skip`, `g!queue`, `g!shuffle`, `g!remove`, `g!loop`, `g!play`", inline=False)
+	embed.add_field(name="Reaction Roles", value="`g!rr-new`, `g!rr-abort`, `g!rr-edit`, `g!rm-embed`", inline=False)
+	embed.add_field(name="Приватные войсы", value="`g!pv-setup` (прописывать владельцу сервера), `g!pv-limit`, `g!pv-lock`, `g!pv-unlock`, `g!pv-allow`, `g!pv-deny`, `g!pv-limit`, `g!pv-name`, `g!pv-claim`", inline=False)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
 	
@@ -731,38 +734,6 @@ async def remove_selector_embed(ctx):
 	else:
 		await ctx.send("You do not have an admin role.")
 
-@bot.command(name="rr-colour")
-async def set_colour(ctx):
-	if isadmin(ctx.message.author):
-		msg = ctx.message.content.split()
-		args = len(msg) - 1
-		if args:
-			global botcolour
-			colour = msg[1]
-			try:
-				botcolour = discord.Colour(int(colour, 16))
-
-				config["server"]["colour"] = colour
-				with open(f"{directory}/config.ini", "w") as configfile:
-					config.write(configfile)
-
-				example = discord.Embed(
-					title="Example embed",
-					description="This embed has a new colour!",
-					colour=botcolour,
-				)
-				await ctx.send("Colour changed.", embed=example)
-			except ValueError:
-				await ctx.send(
-					"Please provide a valid hexadecimal value. Example:"
-					f" `g!colour 0xffff00`"
-				)
-		else:
-			await ctx.send(
-				f"Please provide a hexadecimal value. Example: `g!colour"
-				" 0xffff00`"
-			)
-
 @bot.command(name="admin")
 @commands.has_permissions(administrator=True)
 async def add_admin(ctx):
@@ -854,7 +825,7 @@ async def list_admin(ctx):
 		await ctx.send("There are no bot admins registered.")
 
 bot.add_cog(music.Music(bot))
-bot.load_extension("voice")
+voice.setup(bot)
 	
 loop = asyncio.get_event_loop()
 	
