@@ -5,7 +5,6 @@ import traceback
 import sqlite3
 import validators
 
-
 class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
