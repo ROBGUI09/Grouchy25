@@ -230,6 +230,7 @@ class VoiceState:
 
             self.current.source.volume = self._volume
             self.voice.play(self.current.source, after=self.play_next_song)
+            await ctx.guild.change_voice_state(channel=self.current.source, self_mute=False, self_deaf=True)
             await self.current.source.channel.send(embed=self.current.create_embed())
 
             await self.next.wait()
