@@ -21,8 +21,8 @@ handlers = logging.FileHandler(filename='error.log', encoding='utf-8', mode='a')
 handlers.setLevel(logging.ERROR)
 handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
-loggers.addHandler(handleri)
-loggers.addHandler(handlers)
+logger.addHandler(handleri)
+logger.addHandler(handlers)
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
