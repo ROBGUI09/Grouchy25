@@ -17,7 +17,7 @@ logger = logging.getLogger()
 handleri = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
 handleri.setLevel(logging.INFO)
 handleri.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-handlers = logging.FileHandler(filename='error.log', level=logging.ERROR, encoding='utf-8', mode='a')
+handlers = logging.FileHandler(filename='error.log', encoding='utf-8', mode='a')
 handlers.setLevel(logging.ERROR)
 handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
