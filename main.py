@@ -15,8 +15,8 @@ import discord_logging
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-WEBHOOK_URL = "https://discord.com/api/webhooks/998498747766034522/3FdMXGqpFgsVtRbIc9ShE7lL3cgoocUrw5gLSKHLigwD3JLrelmAUKVorcv8js1q7tyR"
-handler = discord_logging.Discord_Handler(WEBHOOK_URL)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='a')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
 logger.addHandler(handler)
 
