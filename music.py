@@ -179,7 +179,6 @@ class VoiceState:
         self._ctx = ctx
 
         self.current = None
-        self._current = None # уууу кастыли паехали
         self.voice = None
         self.next = asyncio.Event()
         self.songs = SongQueue()
@@ -215,22 +214,20 @@ class VoiceState:
 
     async def audio_player_task(self):
         while True:
-            self.next.clear()
-
             if not self.loop:
-                # Try to get the next song within 3 minutes.
-                # If no song will be added to the queue in time,
-                # the player will disconnect due to performance
-                # reasons.
-                try:
-                    async with timeout(180):  # 3 minutes
-                        self.current = await self.songs.get()
-                        self._current = self.current
-                except asyncio.TimeoutError:
-                    self.bot.loop.create_task(self.stop())
-                    return
-            else:
-                self.current = self._current # ууу кастыли пашли как так можно роберт
+                self.next.clear()
+
+            # Try to get the next song within 3 minutes.
+            # If no song will be added to the queue in time,
+            # the player will disconnect due to performance
+            # reasons.
+            try:
+                async with timeout(180):  # 3 minutes
+                    self.current = await self.songs.get()
+                    self._current = self.current
+            except asyncio.TimeoutError:
+                self.bot.loop.create_task(self.stop())
+                return
 
             self.current.source.volume = self._volume
             self.voice.play(self.current.source, after=self.play_next_song)
@@ -242,7 +239,8 @@ class VoiceState:
         if error:
             raise VoiceError(str(error))
 
-        self.next.set()
+        if not self.loop:
+            self.next.set()
 
     def skip(self):
         self.skip_votes.clear()
