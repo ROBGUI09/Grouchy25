@@ -841,7 +841,7 @@ async def list_admin(ctx):
 
 bot.add_cog(music.Music(bot))
 bot.add_cog(voice.Voice(bot))
-bot.add_cog(icon.ServerIcon(bot))
+#bot.add_cog(icon.ServerIcon(bot))
 	
 loop = asyncio.get_event_loop()
 	
