@@ -11,7 +11,7 @@ import database
 import voice
 import logging
 
-logging.basicConfig(filename='app.log', filemode='a', format='%(asctime)s:%(levelname)s:%(name)s: %(message)s')
+logging.basicConfig(filename=r'app.log', level=logging.ERROR, format='%(asctime)s:%(levelname)s:%(name)s: %(message)s')
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
