@@ -236,7 +236,7 @@ class VoiceState:
 
     def play_next_song(self, error=None):
         if error:
-            raise VoiceError(str(error))
+            print(str(VoiceError(str(error))),"ваще пахую")
 
         self.next.set()
 
