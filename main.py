@@ -10,10 +10,8 @@ import asyncio
 import database
 import voice
 import logging
-import discord_logging
 
-logging.basicConfig(filename=r'app.log', level=logging.ERROR, format='%(asctime)s:%(levelname)s:%(name)s: %(message)s')
-logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
 
 WEBHOOK_URL = "https://discord.com/api/webhooks/998498747766034522/3FdMXGqpFgsVtRbIc9ShE7lL3cgoocUrw5gLSKHLigwD3JLrelmAUKVorcv8js1q7tyR"
 handler = discord_logging.Discord_Handler(WEBHOOK_URL)
