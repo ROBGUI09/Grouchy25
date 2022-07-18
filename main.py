@@ -13,12 +13,20 @@ import logging
 import discord_logging
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='a')
+handler = logging.FileHandler(filename='error.log', encoding='utf-8', mode='a')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
 logger.addHandler(handler)
+
+loggers = logging.getLogger()
+loggers.setLevel(logging.INFO)
+
+handlers = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
+handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+
+loggers.addHandler(handler)
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
