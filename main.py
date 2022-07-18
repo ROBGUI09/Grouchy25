@@ -11,17 +11,7 @@ import database
 import voice
 import logging
 
-logger = logging.getLogger('discord')
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-handler.setLevel(logging.INFO)
-logger.addHandler(handler)
-handler.setLevel(logging.ERROR)
-logger.addHandler(handler)
-handler.setLevel(logging.CRITICAL)
-logger.addHandler(handler)
-handler.setLevel(logging.WARNING)
-logger.addHandler(handler)
+logging.basicConfig(filename='app.log', filemode='w', encoding='utf-8', format='%(asctime)s:%(levelname)s:%(name)s: %(message)s'')
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
