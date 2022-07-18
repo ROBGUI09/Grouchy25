@@ -79,7 +79,7 @@ class Voice(commands.Cog):
         c = conn.cursor()
         guildID = ctx.guild.id
         id = ctx.author.id
-        if ctx.author.id == ctx.guild.owner_id:
+        if True:
             def check(m):
                 return m.author.id == ctx.author.id
             await ctx.channel.send("**You have 60 seconds to answer each question!**")
@@ -117,7 +117,7 @@ class Voice(commands.Cog):
     async def setlimit(self, ctx, num):
         conn = sqlite3.connect('voice.db')
         c = conn.cursor()
-        if ctx.author.id == ctx.guild.owner.id:
+        if True:
             c.execute("SELECT * FROM guildSettings WHERE guildID = ?", (ctx.guild.id,))
             voice=c.fetchone()
             if voice is None:
