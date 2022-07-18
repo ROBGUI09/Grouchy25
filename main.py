@@ -39,6 +39,7 @@ async def on_ready():
 	chan = bot.get_channel(997789286596366386)
 	await chan.send("Бот в сети! :partying_face:")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
+	print("Grouchy is online!")
 	
 @bot.command()
 async def info(ctx):
