@@ -3,7 +3,7 @@ import functools
 import itertools
 import math
 import random
-
+import logging
 import discord
 import youtube_dl
 from async_timeout import timeout
