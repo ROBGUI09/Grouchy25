@@ -214,7 +214,7 @@ class VoiceState:
 
     async def audio_player_task(self):
         while True:
-            # self.next.clear()
+            self.next.clear()
 
             if not self.loop:
                 # Try to get the next song within 3 minutes.
