@@ -10,6 +10,7 @@ import asyncio
 import database
 import voice
 import logging
+import discord_logging
 
 logging.basicConfig(level=logging.INFO)
 
