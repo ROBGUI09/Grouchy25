@@ -214,7 +214,7 @@ class VoiceState:
 
     async def audio_player_task(self):
         while True:
-            self.next.clear()
+            # self.next.clear()
 
             if not self.loop:
                 # Try to get the next song within 3 minutes.
@@ -370,7 +370,7 @@ class Music(commands.Cog):
 
         ctx.voice_state.songs.clear()
 
-        if not ctx.voice_state.is_playing:
+        if ctx.voice_state.is_playing:
             ctx.voice_state.voice.stop()
             await ctx.message.add_reaction('⏹')
 
