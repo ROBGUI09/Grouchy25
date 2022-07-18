@@ -13,11 +13,12 @@ import logging
 import discord_logging
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
 
-handleri = logging.FileHandler(filename='info.log', level=logging.INFO, encoding='utf-8', mode='a')
+handleri = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
+handleri.setLevel(logging.INFO)
 handleri.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 handlers = logging.FileHandler(filename='error.log', level=logging.ERROR, encoding='utf-8', mode='a')
+handlers.setLevel(logging.ERROR)
 handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
 loggers.addHandler(handleri)
