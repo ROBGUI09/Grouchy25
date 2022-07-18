@@ -112,7 +112,7 @@ class Voice(commands.Cog):
         conn.commit()
         conn.close()
 
-    @commands.command(name="pv-limit")
+    @commands.command(name="pv-setlimit")
     async def setlimit(self, ctx, num):
         conn = sqlite3.connect('voice.db')
         c = conn.cursor()
