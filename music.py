@@ -311,6 +311,14 @@ class Music(commands.Cog):
 
         ctx.voice_state.voice = await destination.connect()
 
+    
+    @commands.Cog.listener()
+    async def on_voice_state_update(member, before, after):
+        if member == bot.user:
+            if before.channel is not None and after.channel is None:
+                await ctx.voice_state.stop()
+                del self.voice_states[ctx.guild.id]
+
     @commands.command(name='leave', aliases=['disconnect'])
     async def _leave(self, ctx: commands.Context):
         """Clears the queue and leaves the voice channel."""
