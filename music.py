@@ -229,6 +229,7 @@ class VoiceState:
                     return
 
             self.current.source.volume = self._volume
+            logging.error(self.voice.play,"3hD7i3h")
             self.voice.play(self.current.source, after=self.play_next_song)
             await self.current.source.channel.send(embed=self.current.create_embed())
 
@@ -236,7 +237,7 @@ class VoiceState:
 
     def play_next_song(self, error=None):
         if error:
-            print(str(VoiceError(str(error))),"pohui")
+            raise VoiceError(str(error))
 
         self.next.set()
 
