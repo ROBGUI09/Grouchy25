@@ -179,6 +179,7 @@ class VoiceState:
         self._ctx = ctx
 
         self.current = None
+        self._current = None # уууу кастыли паехали
         self.voice = None
         self.next = asyncio.Event()
         self.songs = SongQueue()
@@ -224,12 +225,14 @@ class VoiceState:
                 try:
                     async with timeout(180):  # 3 minutes
                         self.current = await self.songs.get()
+                        self._current = self.current
                 except asyncio.TimeoutError:
                     self.bot.loop.create_task(self.stop())
                     return
+            else:
+                self.current = self._current # ууу кастыли пашли как так можно роберт
 
             self.current.source.volume = self._volume
-            logging.error(self.voice.play,"3hD7i3h")
             self.voice.play(self.current.source, after=self.play_next_song)
             await self.current.source.channel.send(embed=self.current.create_embed())
 
