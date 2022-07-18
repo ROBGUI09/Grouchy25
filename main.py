@@ -854,6 +854,7 @@ async def list_admin(ctx):
 		await ctx.send("There are no bot admins registered.")
 
 bot.add_cog(music.Music(bot))
+bot.load_extension("voice")
 	
 loop = asyncio.get_event_loop()
 	
