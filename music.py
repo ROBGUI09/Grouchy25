@@ -230,7 +230,6 @@ class VoiceState:
 
             self.current.source.volume = self._volume
             self.voice.play(self.current.source, after=self.play_next_song)
-            await ctx.guild.change_voice_state(channel=self.current.source, self_mute=False, self_deaf=True)
             await self.current.source.channel.send(embed=self.current.create_embed())
 
             await self.next.wait()
@@ -313,7 +312,8 @@ class Music(commands.Cog):
 
     
     @commands.Cog.listener()
-    async def on_voice_state_update(member, before, after):
+    async def on_voice_state_update(member, before, after, what):
+        print(member, before, after, what)
         if member == bot.user:
             if before.channel is not None and after.channel is None:
                 await ctx.voice_state.stop()
