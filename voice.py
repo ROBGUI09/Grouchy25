@@ -73,6 +73,7 @@ class Voice(commands.Cog):
         conn.close()
 
     @commands.command(name="pv-setup")
+    @commands.has_permissions(administrator=True)
     async def setup(self, ctx):
         conn = sqlite3.connect('voice.db')
         c = conn.cursor()
@@ -112,10 +113,11 @@ class Voice(commands.Cog):
         conn.close()
 
     @commands.command(name="pv-setlimit")
+    @commands.has_permissions(administrator=True)
     async def setlimit(self, ctx, num):
         conn = sqlite3.connect('voice.db')
         c = conn.cursor()
-        if ctx.author.id == ctx.guild.owner.id or ctx.author.id == 151028268856770560:
+        if ctx.author.id == ctx.guild.owner.id:
             c.execute("SELECT * FROM guildSettings WHERE guildID = ?", (ctx.guild.id,))
             voice=c.fetchone()
             if voice is None:
@@ -275,7 +277,7 @@ class Voice(commands.Cog):
             else:
                 for data in channel.members:
                     if data.id == voice[0]:
-                        owner = ctx.guild.get_member(voice [0])
+                        owner = ctx.guild.get_member(voice[0])
                         await ctx.channel.send(f"{ctx.author.mention} This channel is already owned by {owner.mention}!")
                         x = True
                 if x == False:
