@@ -41,7 +41,7 @@ class Speech(commands.Cog):
     
     @commands.command(name="speak")
     async def _speak(self, ctx, text):
-        if not is_connected(ctx): 
+        if not self.is_connected(ctx): 
             await ctx.send("Сперва `g!join`")
             return
         destination = ctx.author.voice.channel
@@ -55,7 +55,7 @@ class Speech(commands.Cog):
             await ctx.send("Я уже что-то проигрываю в этом канале...")
             return
         
-        audio = discord.PCMAudio(speak(text))
+        audio = discord.PCMAudio(self.speak(text))
         destination.play(audio)
         
     
