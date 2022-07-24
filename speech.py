@@ -26,6 +26,7 @@ class Speech(commands.Cog):
             self.create_token(oauth_token)
 
     def speak(self, text):
+        self.check_token()
         h = {"Authorization": f"Bearer {self.iam}"}
         data = {
             "text":text,
@@ -49,7 +50,7 @@ class Speech(commands.Cog):
             await ctx.send("Я уже что-то проигрываю в этом канале...")
             return
         
-        audio = discord.FFmpegOpusAudio(self.speak(text))
+        audio = discord.FFmpegPCMAudio(self.speak(text))
         await client.play(audio)
         
     
