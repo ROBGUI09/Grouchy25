@@ -1,7 +1,7 @@
 import json
 import requests
 from datetime import datetime
-from discord import commands
+from discord.ext import commands, tasks
 import discord
 
 class Speech(commands.Cog):
