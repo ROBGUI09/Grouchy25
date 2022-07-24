@@ -46,10 +46,6 @@ class Speech(commands.Cog):
 
         await destination.connect()
         
-        if destination.is_playing():
-            await ctx.send("Я уже что-то проигрываю в этом канале...")
-            return
-        
         audio = discord.FFmpegPCMAudio(self.speak(text))
         await destination.play(audio)
         
