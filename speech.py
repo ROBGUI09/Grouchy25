@@ -36,7 +36,7 @@ class Speech(commands.Cog):
         return raw.content
         
     def is_connected(self, ctx):
-        voice_client = get(ctx.bot.voice_clients, guild=ctx.guild)
+        voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
         return voice_client and voice_client.is_connected()
     
     @commands.command(name="speak")
