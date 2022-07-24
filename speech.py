@@ -46,7 +46,7 @@ class Speech(commands.Cog):
 
         await destination.connect()
         
-        if client.is_playing():
+        if destination.is_playing():
             await ctx.send("Я уже что-то проигрываю в этом канале...")
             return
         
