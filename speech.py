@@ -41,9 +41,6 @@ class Speech(commands.Cog):
     
     @commands.command(name="speak")
     async def _speak(self, ctx, text):
-        if not self.is_connected(ctx): 
-            await ctx.send("Сперва `g!join`")
-            return
         destination = ctx.author.voice.channel
 
         client = await destination.connect()
