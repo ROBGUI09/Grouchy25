@@ -35,7 +35,7 @@ class Speech(commands.Cog):
         raw = requests.post("https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize",headers=h,data=data)
         return raw.content
         
-    def is_connected(ctx):
+    def is_connected(self, ctx):
         voice_client = get(ctx.bot.voice_clients, guild=ctx.guild)
         return voice_client and voice_client.is_connected()
     
