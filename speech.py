@@ -49,7 +49,7 @@ class Speech(commands.Cog):
             await ctx.send("Я уже что-то проигрываю в этом канале...")
             return
         
-        audio = discord.PCMAudio(self.speak(text))
+        audio = discord.FFmpegOpusAudio(self.speak(text))
         await client.play(audio)
         
     
