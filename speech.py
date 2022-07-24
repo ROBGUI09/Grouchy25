@@ -39,7 +39,7 @@ class Speech(commands.Cog):
         voice_client = get(ctx.bot.voice_clients, guild=ctx.guild)
         return voice_client and voice_client.is_connected()
     
-    @commands.Cog.listener()
+    @commands.command
     async def speak(self, ctx, text):
         if not is_connected(ctx): 
             await ctx.send("Сперва `g!join`")
