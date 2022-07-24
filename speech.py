@@ -45,17 +45,14 @@ class Speech(commands.Cog):
             await ctx.send("Сперва `g!join`")
             return
         destination = ctx.author.voice.channel
-        if ctx.voice_state.voice:
-            await ctx.voice_state.voice.move_to(destination)
-            return
 
-        ctx.voice_state.voice = await destination.connect()
+        client = await destination.connect()
         
-        if destination.is_playing():
+        if client.is_playing():
             await ctx.send("Я уже что-то проигрываю в этом канале...")
             return
         
         audio = discord.PCMAudio(self.speak(text))
-        destination.play(audio)
+        await client.play(audio)
         
     
