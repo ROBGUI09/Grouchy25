@@ -44,13 +44,13 @@ class Speech(commands.Cog):
     async def _speak(self, ctx, text):
         destination = ctx.author.voice.channel
 
-        client = await destination.connect()
+        await destination.connect()
         
         if client.is_playing():
             await ctx.send("Я уже что-то проигрываю в этом канале...")
             return
         
         audio = discord.FFmpegPCMAudio(self.speak(text))
-        await client.play(audio)
+        await destination.play(audio)
         
     
