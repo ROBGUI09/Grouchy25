@@ -23,7 +23,7 @@ class Speech(commands.Cog):
         
     def check_token(self):
         if datetime.now() < self.exp_iam_token:
-            self.create_token(oauth_token)
+            self.create_token()
 
     def speak(self, text):
         self.check_token()
