@@ -12,6 +12,7 @@ import voice
 import icon
 import logging
 import discord_logging
+import speech
 
 logger = logging.getLogger()
 
@@ -841,6 +842,7 @@ async def list_admin(ctx):
 
 bot.add_cog(music.Music(bot))
 bot.add_cog(voice.Voice(bot))
+bot.add_cog(speech.Speech(bot))
 #bot.add_cog(icon.ServerIcon(bot))
 	
 loop = asyncio.get_event_loop()
