@@ -14,6 +14,7 @@ import logging
 import discord_logging
 import speech
 import mod
+import requests
 
 logger = logging.getLogger()
 
@@ -840,6 +841,15 @@ async def list_admin(ctx):
 		)
 	else:
 		await ctx.send("There are no bot admins registered.")
+
+@bot.command()
+async def tyan(ctx):
+	url = requests.get("https://api.waifu.pics/sfw/waifu").json()['url']
+	embed=discord.Embed(title="Тян", description=f"Запрошено {ctx.message.author.mention}", color=0)
+	embed.set_image(url=url)
+	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	await ctx.message.reply(embed=embed)
+	
 
 bot.add_cog(music.Music(bot))
 bot.add_cog(voice.Voice(bot))
