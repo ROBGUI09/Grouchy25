@@ -3,8 +3,6 @@ import time
 import psutil
 from discord.ext import commands as cmd
 
-import teapot
-
 
 def setup(bot):
     """ Initialize commands """
