@@ -849,6 +849,15 @@ async def tyan(ctx):
 	embed.set_image(url=url)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
+
+@bot.command()
+async def neko(ctx):
+	url = requests.get("https://nekos.life/api/v2/img/neko").json()['url']
+	embed=discord.Embed(title="Неко", description=f"Запрошено {ctx.message.author.mention}", color=0)
+	embed.set_image(url=url)
+	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	await ctx.message.reply(embed=embed)
+
 	
 
 bot.add_cog(music.Music(bot))
