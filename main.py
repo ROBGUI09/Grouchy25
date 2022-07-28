@@ -16,6 +16,7 @@ import speech
 import mod
 import requests
 import roulette
+import pokerhandler
 
 logger = logging.getLogger()
 
@@ -867,6 +868,7 @@ bot.add_cog(speech.Speech(bot))
 #bot.add_cog(icon.ServerIcon(bot))
 mod.setup(bot)
 bot.add_cog(roulette.Game(bot))
+bot.add_cog(pokerhandler.Poker(bot))
 	
 loop = asyncio.get_event_loop()
 	
