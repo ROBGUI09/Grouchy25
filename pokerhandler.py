@@ -5,14 +5,6 @@ import asyncio
 import collections
 import logging
 
-
-class Bot(commands.Bot):
-
-    async def on_ready(self):
-        print(f'{self.user.name} is online')
-        print(f'https://discordapp.com/api/oauth2/authorize?client_id={self.user.id}&permissions=-1&scope=bot')
-
-
 class Poker(commands.Cog):
 
     chips_question = ('How many chips should you start with? (default: 10000)\n'
@@ -28,7 +20,7 @@ class Poker(commands.Cog):
         self.tournaments = collections.defaultdict(dict)
         self.invites = collections.defaultdict(dict)
 
-    @commands.command()
+    @commands.command(name="pk-tour")
     @commands.guild_only()
     async def tournament(self, ctx):
 
@@ -99,19 +91,6 @@ class Poker(commands.Cog):
             return True
         await member.send("Invite declined.")
         return False
-
-
-    @commands.command(name='eval')
-    async def _eval(self, ctx, *, args):
-        try:
-            r = eval(args)
-            await ctx.send(f"```{str(r)}```")
-        except Exception as e:
-            await ctx.send(f"```{str(e)}```")
-
-    @commands.command()
-    async def stop(self, ctx):
-        quit()
 
 
 def get_player_string(game):
