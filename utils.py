@@ -22,23 +22,23 @@ import functools
 from discord import Guild, Message
 from discord.ext.commands import Context, Bot
 
-def set_prefixes(guild: Guild, prefixes: list[str]):
+def set_prefixes(guild: Guild, prefixes):
     guilds = get_guilds()
     guilds[str(guild.id)]['prefixes'] = prefixes
     set_guilds(guilds)
 
 
-def get_channels(guild: Guild) -> list[int]:
+def get_channels(guild: Guild):
     return get_guilds().get(str(guild.id), {}).get('channels', [])
 
 
-def set_channels(guild: Guild, channels: list[int]):
+def set_channels(guild: Guild, channels):
     guilds = get_guilds()
     guilds[str(guild.id)]['channels'] = channels
     set_guilds(guilds)
 
 
-def is_channel_bound(ctx: Context) -> bool:
+def is_channel_bound(ctx: Context):
     channels = get_channels(ctx.guild)
     return ctx.channel.id in channels or not channels
 
@@ -65,7 +65,7 @@ def update_guilds(bot: Bot):
     set_guilds(guilds)
 
 
-def parse_time(time_string: str, regex: str = None) -> datetime.timedelta:
+def parse_time(time_string: str, regex: str = None):
     if regex:
         regex: re.Pattern = re.compile(regex)
     else:
@@ -76,7 +76,7 @@ def parse_time(time_string: str, regex: str = None) -> datetime.timedelta:
     return datetime.timedelta(**time_params)
 
 
-def parse_command(command: str) -> dict:
+def parse_command(command: str):
     args = shlex.split(command)
     keys = []
     values = []
