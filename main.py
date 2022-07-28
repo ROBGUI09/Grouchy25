@@ -82,7 +82,20 @@ async def monika(ctx):
 		"https://cdn.discordapp.com/attachments/932191860712177664/997841262960984144/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997841601072214077/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997841652326596738/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997841963627851886/unknown.png"
+		"https://cdn.discordapp.com/attachments/932191860712177664/997841963627851886/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001959774570676224/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001959859153027112/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001959887871418490/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960100359061584/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960105606119504/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960189878083696/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960311827480666/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960329942679682/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960396875370637/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960429851004980/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960464722448394/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960606166954035/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960644121198672/unknown.png"
 	]
 	embed=discord.Embed(title="Моника", description=f"Запрошено {ctx.message.author.mention}", color=0)
 	embed.set_image(url=random.choice(images))
@@ -101,7 +114,17 @@ async def yuri(ctx):
 		"https://cdn.discordapp.com/attachments/932191860712177664/997843579638661260/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997843719178948668/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997843991104069723/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997844446995562526/unknown.png"
+		"https://cdn.discordapp.com/attachments/932191860712177664/997844446995562526/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960929166102569/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001960954109640704/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961180400730172/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961348873334864/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961349192105984/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961470994694274/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961525344481290/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961662225596477/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001961753418154034/unknown.png",
+		"https://cdn.discordapp.com/attachments/932191860712177664/1001962504844484809/unknown.png"
 	]
 	embed=discord.Embed(title="Юри", description=f"Запрошено {ctx.message.author.mention}", color=0)
 	embed.set_image(url=random.choice(images))
