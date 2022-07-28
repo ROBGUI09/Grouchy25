@@ -41,9 +41,9 @@ class Game(Cog):
                 await ctx.reply("No game started.", mention_author=False)
         return decorator
 
-    @command(aliases=['startgame', 'start-game', 'new', 'newgame', 'new-game'])
+    @command(name='rusr-start')
     @channel_bound
-    async def start(self, ctx: Context):
+    async def _start(self, ctx: Context):
         if self.game_started:
             await ctx.reply("Game already started.", mention_author=False)
             return
@@ -63,10 +63,10 @@ class Game(Cog):
         if self.bot.user.id == self.current_player.id:
             await self.shoot(ctx, self.bot.user)
 
-    @command(aliases=['cancelgame', 'cancel-game', 'stop', 'stopgame', 'stop-game', 'end', 'endgame', 'end-game'])
+    @command(name="rusr-cancel")
     @channel_bound
     @game_command
-    async def cancel(self, ctx: Context):
+    async def _cancel(self, ctx: Context):
         self.game_started = False
         self.players = []
         self.channel = None
@@ -75,7 +75,7 @@ class Game(Cog):
         self.current_player = None
         await ctx.reply("Stopped the current game.", mention_author=False)
 
-    @command(aliases=['current-game', 'currentgame', 'game-info', 'gameinfo '])
+    @command(name='rusr-current')
     @channel_bound
     @game_command
     async def current(self, ctx: Context):
@@ -131,19 +131,19 @@ class Game(Cog):
             if self.bot.user.id == self.current_player.id:
                 await self.shoot(ctx, self.bot.user)
 
-    @group(aliases=['players'])
+    @group(name='rusr-players')
     @channel_bound
     async def player(self, ctx: Context):
         if ctx.invoked_subcommand is None:
             await self.player_list(ctx)
 
-    @player.command(name='list')
+    @player.command(name='rusr-list')
     @channel_bound
     @game_command
     async def player_list(self, ctx: Context):
         await ctx.reply(f"Players in current game: {' '.join(player.mention for player in self.players)}", mention_author=False)
 
-    @player.command(name='add')
+    @player.command(name='rusr-add')
     @channel_bound
     @game_command
     async def player_add(self, ctx: Context):
@@ -151,7 +151,7 @@ class Game(Cog):
         self.players.extend([player for player in players if player not in self.players])
         await ctx.reply(f"Added {' '.join(player.mention for player in players)} to the current game.", mention_author=False)
 
-    @player.command(name='remove')
+    @player.command(name='rusr-remove')
     @channel_bound
     @game_command
     async def player_remove(self, ctx: Context):
