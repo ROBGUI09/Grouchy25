@@ -13,7 +13,7 @@ class Bot(commands.Bot):
         print(f'https://discordapp.com/api/oauth2/authorize?client_id={self.user.id}&permissions=-1&scope=bot')
 
 
-class Poker:
+class Poker(commands.Cog):
 
     chips_question = ('How many chips should you start with? (default: 10000)\n'
                       'Type `cancel` to cancel')
