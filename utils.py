@@ -21,39 +21,6 @@ import datetime
 import functools
 from discord import Guild, Message
 from discord.ext.commands import Context, Bot
-from dotenv import load_dotenv
-
-load_dotenv()
-
-def frame_path(frame: int, size: int) -> str:
-    return FRAME_PATH.format(frame=str(frame), size=str(size))
-
-
-def markdown_path(name: str) -> str:
-    return MARKDOWN_PATH.format(name=name)
-
-
-def get_guilds() -> dict:
-    with open(SETTINGS_PATH, 'r') as file:
-        settings = json.load(file)
-    return settings['guilds']
-
-
-def set_guilds(guilds: dict):
-    with open(SETTINGS_PATH, 'r') as file:
-        settings = json.load(file)
-    settings['guilds'] = guilds
-    with open(SETTINGS_PATH, 'w') as file:
-        json.dump(settings, file, indent=4)
-
-
-def get_prefixes(guild: Guild, message: Message = None) -> list[str]:
-    if isinstance(guild, Guild):
-        id = guild.id
-    else:
-        id = message.guild.id
-    return get_guilds().get(str(id), {}).get('prefixes', DEFAULT_PREFIXES)
-
 
 def set_prefixes(guild: Guild, prefixes: list[str]):
     guilds = get_guilds()
