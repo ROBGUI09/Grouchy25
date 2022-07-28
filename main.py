@@ -15,6 +15,7 @@ import discord_logging
 import speech
 import mod
 import requests
+import roulette
 
 logger = logging.getLogger()
 
@@ -865,6 +866,7 @@ bot.add_cog(voice.Voice(bot))
 bot.add_cog(speech.Speech(bot))
 #bot.add_cog(icon.ServerIcon(bot))
 mod.setup(bot)
+bot.add_cog(roulette.Game(bot))
 	
 loop = asyncio.get_event_loop()
 	
