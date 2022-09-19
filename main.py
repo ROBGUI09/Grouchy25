@@ -31,6 +31,21 @@ logger.addHandler(handlers)
 
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
+from discord.gateway import DiscordWebSocket
+
+
+class MyDiscordWebSocket(DiscordWebSocket):
+
+    async def send_as_json(self, data):
+        if data.get('op') == self.IDENTIFY:
+            if data.get('d', {}).get('properties', {}).get('$browser') is not None:
+                data['d']['properties']['$browser'] = 'Discord Android'
+                data['d']['properties']['$device'] = 'Discord Android'
+        await super().send_as_json(data)
+
+
+DiscordWebSocket.from_client = MyDiscordWebSocket.from_client
+
 bot = commands.Bot(command_prefix=('g!'))
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
