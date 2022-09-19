@@ -32,6 +32,7 @@ logger.addHandler(handlers)
 token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
 
 bot = commands.Bot(command_prefix=('g!'))
+bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
 db = database.Database("../reactionlight.db")
