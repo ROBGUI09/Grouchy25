@@ -46,7 +46,7 @@ class MyDiscordWebSocket(DiscordWebSocket):
 
 DiscordWebSocket.from_client = MyDiscordWebSocket.from_client
 
-bot = commands.Bot(command_prefix=('g!'))
+bot = commands.Bot(command_prefix=('g!'),intents=discord.Intents.default())
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
