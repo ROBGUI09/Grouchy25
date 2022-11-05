@@ -88,7 +88,7 @@ async def info(ctx):
 	await ctx.message.reply(embed=embed)
 	
 @bot.command()
-async def monika(ctx):
+async def __monika(ctx):
 	images = [
 		"https://cdn.discordapp.com/attachments/932191860712177664/997839931932168272/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997840025498697810/unknown.png",
@@ -121,7 +121,7 @@ async def monika(ctx):
 	await ctx.message.reply(embed=embed)
 
 @bot.command()
-async def yuri(ctx):
+async def __yuri(ctx):
 	images = [
 		"https://cdn.discordapp.com/attachments/932191860712177664/997842824420659301/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997842856590979163/unknown.png",
@@ -150,7 +150,7 @@ async def yuri(ctx):
 	await ctx.message.reply(embed=embed)
 	
 @bot.command()
-async def natsuki(ctx):
+async def __natsuki(ctx):
 	images = [
 		"https://cdn.discordapp.com/attachments/932191860712177664/997844940761616495/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997844989591699486/unknown.png",
@@ -167,7 +167,7 @@ async def natsuki(ctx):
 	await ctx.message.reply(embed=embed)
 	
 @bot.command()
-async def sayori(ctx):
+async def __sayori(ctx):
 	images = [
 		"https://cdn.discordapp.com/attachments/932191860712177664/997847464004550786/unknown.png",
 		"https://cdn.discordapp.com/attachments/932191860712177664/997847757303857202/unknown.png",
@@ -187,12 +187,12 @@ async def sayori(ctx):
 	
 @bot.command()
 async def hentai(ctx):
-	await ctx.message.reply("|| https://cdn.discordapp.com/attachments/997873592303898675/997886931281137826/videoplayback_3.mp4 ||")
+	await ctx.message.reply("|| https://cdn.discordapp.com/attachments/932191860712177664/1038421047701143582/lol.mp4 ||")
 	
 @bot.command()
 async def help(ctx):
-	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`")
-	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`, `g!8ball`, `g!weather`", inline=False)
+	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`") #, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`
+	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`, `g!8ball`, `g!weather`", inline=False)
 	embed.add_field(name="Музыка", value="`g!join`, `g!summon`, `g!leave`, `g!volume`, `g!now`, `g!pause`, `g!resume`, `g!stop`, `g!skip`, `g!queue`, `g!shuffle`, `g!remove`, `g!loop`, `g!play`", inline=False)
 	embed.add_field(name="Reaction Roles", value="`g!rr-new`, `g!rr-abort`, `g!rr-edit`, `g!rm-embed`", inline=False)
 	embed.add_field(name="Приватные войсы", value="`g!pv-setup` (прописывать владельцу сервера), `g!pv-limit`, `g!pv-lock`, `g!pv-unlock`, `g!pv-allow`, `g!pv-deny`, `g!pv-limit`, `g!pv-name`, `g!pv-claim`", inline=False)
