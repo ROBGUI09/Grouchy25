@@ -47,7 +47,7 @@ class MyDiscordWebSocket(DiscordWebSocket):
 
 DiscordWebSocket.from_client = MyDiscordWebSocket.from_client
 
-bot = commands.Bot(command_prefix=('g!'))
+bot = commands.Bot(command_prefix=('g!'),intents=intents)
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
@@ -905,7 +905,7 @@ bot.add_cog(roulette.Game(bot))
 loop = asyncio.get_event_loop()
 	
 try:
-	loop.run_until_complete(bot.start(token,intents=intents))
+	loop.run_until_complete(bot.start(token))
 except KeyboardInterrupt:
 	loop.run_until_complete(bot.close())
 	utils.db.close()
