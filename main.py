@@ -18,6 +18,7 @@ import requests
 import roulette
 
 logger = logging.getLogger()
+intents = discord.Intents.all()
 
 handleri = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
 handleri.setLevel(logging.INFO)
@@ -904,7 +905,7 @@ bot.add_cog(roulette.Game(bot))
 loop = asyncio.get_event_loop()
 	
 try:
-	loop.run_until_complete(bot.start(token))
+	loop.run_until_complete(bot.start(token,intents=intents))
 except KeyboardInterrupt:
 	loop.run_until_complete(bot.close())
 	utils.db.close()
