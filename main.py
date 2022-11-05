@@ -17,8 +17,9 @@ import mod
 import requests
 import roulette
 
-logger = logging.getLogger()
-intents = discord.Intents.all()
+logger = logging.getLogger() 
+intents = discord.Intents.default()
+intents.members = True
 
 handleri = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
 handleri.setLevel(logging.INFO)
