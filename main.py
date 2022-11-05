@@ -895,15 +895,17 @@ async def neko(ctx):
 	await ctx.message.reply(embed=embed)
 
 	
-
-bot.add_cog(music.Music(bot))
-bot.add_cog(voice.Voice(bot))
-bot.add_cog(speech.Speech(bot))
-#bot.add_cog(icon.ServerIcon(bot))
-mod.setup(bot)
-bot.add_cog(roulette.Game(bot))
+async def setup_cogs():
+	await bot.add_cog(music.Music(bot))
+	await bot.add_cog(voice.Voice(bot))
+	await bot.add_cog(speech.Speech(bot))
+	#bot.add_cog(icon.ServerIcon(bot))
+	mod.setup(bot)
+	await bot.add_cog(roulette.Game(bot))
 	
 loop = asyncio.get_event_loop()
+
+asyncio.run(setup_cogs())
 	
 try:
 	loop.run_until_complete(bot.start(token))
