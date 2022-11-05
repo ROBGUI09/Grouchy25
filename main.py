@@ -52,7 +52,7 @@ bot.remove_command('help')
 
 db = database.Database("../reactionlight.db")
 botcolour = 0
-botname = "By Grouchy and Kelk"
+botname = "От Grouchy И Kelk'а"
 logo = "https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png"
 
 def system_notification(data):
@@ -80,7 +80,7 @@ async def on_ready():
 @bot.command()
 async def info(ctx):
 	embed=discord.Embed(title="Информация", description="Я стал первым приложением,которое было созданно по инициативе Grouchy. На данный момент я являюсь ботом помощником,но возможно скоро вы сможете полноценно со мной поговорить", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ", color=0)
-	embed.add_field(name="Kelk", value="https://t.me/ROBGUI09", inline=True)
+	embed.add_field(name="Kelk", value="https://t.me/itsKelk", inline=True)
 	embed.add_field(name="Grouchy", value="https://t.me/grouchy25", inline=True)
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
@@ -243,7 +243,7 @@ async def weather(ctx, *args):
 async def vip(ctx):
 	vip = utils.check_for_vip(ctx.guild.id)
 	if vip < time.time():
-		await ctx.message.reply("Випки нема :<")
+		await ctx.message.reply("Випки нету")
 	else:
 		await ctx.message.reply(f"Випка подключена до <t:{vip}> (истечет <t:{vip}:R>)")
 		
@@ -277,21 +277,21 @@ async def on_message(message):
 					readable = bot_permissions.view_channel
 					if not writable or not readable:
 						await message.channel.send(
-							"I cannot read or send messages in that channel."
+							"Я не могу читать или писать сообщения в этом канале."
 						)
 						return
 				except IndexError:
-					await message.channel.send("The channel you mentioned is invalid.")
+					await message.channel.send("Канал который вы указали не существует.")
 					return
 
 				db.step1(user, channel, target_channel)
 				await message.channel.send(
-					"Attach roles and emojis separated by one space (one combination"
-					" per message). When you are done type `done`. Example:\n:smile:"
-					" `@Role`"
+					"Прикрепи роли и эмодзи, разделённые одним пробелом (одна комбинация за сообщение). "
+					"Когда закончишь, напиши `готово`. Пример:\n:smile:"
+					" `@Роль`"
 				)
 			elif step == 2:
-				if msg[0].lower() != "done":
+				if msg[0].lower() != "готово":
 					# Stores reaction-role combinations until "done" is received
 					try:
 						reaction = msg[0]
@@ -300,30 +300,29 @@ async def on_message(message):
 						db.step2(user, channel, role, reaction)
 					except IndexError:
 						await message.channel.send(
-							"Mention a role after the reaction. Example:\n:smile:"
-							" `@Role`"
+							"Упомяни роль после реакции. Пример:\n:smile:"
+							" `@Роль`"
 						)
 					except discord.HTTPException:
 						await message.channel.send(
-							"You can only use reactions uploaded to this server or"
-							" standard emojis."
+							"Ты можешь использовать только эмодзи с этого сервера, либо стандартные эмодзи Discord'а"
 						)
 				else:
 					# Advances to step three
 					db.step2(user, channel, done=True)
 
 					selector_embed = discord.Embed(
-						title="Embed_title",
-						description="Embed_content",
+						title="Заглавие_сообщения",
+						description="Подпись_сообщения",
 						colour=botcolour,
 					)
 					selector_embed.set_footer(text=f"{botname}", icon_url=logo)
 					await message.channel.send(
-						"What would you like the message to say?\nFormatting is:"
-						" `Message // Embed_title // Embed_content`.\n\n`Embed_title`"
-						" and `Embed_content` are optional. You can type `none` in any"
-						" of the argument fields above (e.g. `Embed_title`) to make the"
-						" bot ignore it.\n\n\nMessage",
+						"Что вы хотите видеть в сообщение?\nФорматирование таково:"
+						" `Текст // Заглавие_сообщения // Подпись_сообщения`.\n\n`Заглавие_сообщения`"
+						" и `Подпись_сообщения` опциональные. Вы можете написать `none` в любой"
+						" из аргументов команды (например `Заглавие_сообщения`) чтобы бот"
+						" проигнорировал их.\n\n\nТекст",
 						embed=selector_embed,
 					)
 			elif step == 3:
@@ -360,35 +359,35 @@ async def on_message(message):
 						)
 					except discord.Forbidden:
 						await message.channel.send(
-							"I don't have permission to send selector_msg messages to"
-							f" the channel {target_channel.mention}."
+							"У меня нет прав для отправки сообщений в"
+							f" {target_channel.mention}."
 						)
 					if isinstance(selector_msg, discord.Message):
 						combos = db.get_combos(user, channel)
 						error = db.end_creation(user, channel, selector_msg.id)
 						if error and system_channel:
 							await message.channel.send(
-								"I could not commit the changes to the database. Check"
-								f" {system_channel.mention} for more information."
+								"Я не могу вписать это в базу данных. Проверьте"
+								f" {system_channel.mention} для большей информации."
 							)
 							await system_notification(
-								f"Database error:\n```\n{error}\n```"
+								f"Ошибка датабазы:\n```\n{error}\n```"
 							)
 						elif error:
 							await message.channel.send(
-								"I could not commit the changes to the database."
+								"Я не могу вписать это в базу данных."
 							)
 						for reaction in combos:
 							try:
 								await selector_msg.add_reaction(reaction)
 							except discord.Forbidden:
 								await message.channel.send(
-									"I don't have permission to react to messages from"
-									f" the channel {target_channel.mention}."
+									"У меня нет прав чтобы реагироать на сообщения"
+									f" в канале {target_channel.mention}."
 								)
 				else:
 					await message.channel.send(
-						"You can't use an empty message as a role-reaction message."
+						"Нельзя использовать пустой текст для сообщения."
 					)
 
 
@@ -402,7 +401,7 @@ async def on_raw_reaction_add(payload):
 	exists = db.exists(msg_id)
 	if isinstance(exists, Exception):
 		await system_notification(
-			f"Database error after a user added a reaction:\n```\n{exists}\n```"
+			f"Ошибка датабазы после того как пользователь добавил реакцию:\n```\n{exists}\n```"
 		)
 		return
 	elif exists:
@@ -410,7 +409,7 @@ async def on_raw_reaction_add(payload):
 		reactions = db.get_reactions(msg_id)
 		if isinstance(reactions, Exception):
 			await system_notification(
-				f"Database error when getting reactions:\n```\n{reactions}\n```"
+				f"Ошибка датабазы при получении реакций:\n```\n{reactions}\n```"
 			)
 			return
 		ch = bot.get_channel(ch_id)
@@ -430,10 +429,9 @@ async def on_raw_reaction_add(payload):
 					await member.add_roles(role)
 				except discord.Forbidden:
 					await system_notification(
-						"Someone tried to add a role to themselves but I do not have"
-						" permissions to add it. Ensure that I have a role that is"
-						" hierarchically higher than the role I have to assign, and"
-						" that I have the `Manage Roles` permission."
+						"Кто-то пытался добавить себе роль, но у меня нет прав для ее добавления."
+						" Убедитесь, что у меня есть роль, которая иерархически выше, чем роль, "
+						"которую я должен назначить, и что у меня есть разрешение `Управление ролями`."
 					)
 
 
@@ -446,7 +444,7 @@ async def on_raw_reaction_remove(payload):
 	exists = db.exists(msg_id)
 	if isinstance(exists, Exception):
 		await system_notification(
-			f"Database error after a user removed a reaction:\n```\n{exists}\n```"
+			f"Ошибка базы данных после того, как пользователь удалил реакцию:\n```\n{exists}\n```"
 		)
 		return
 	elif exists:
@@ -454,7 +452,7 @@ async def on_raw_reaction_remove(payload):
 		reactions = db.get_reactions(msg_id)
 		if isinstance(reactions, Exception):
 			await system_notification(
-				f"Database error when getting reactions:\n```\n{reactions}\n```"
+				f"Ошибка базы данных при получении реакций:\n```\n{reactions}\n```"
 			)
 			return
 		if reaction in reactions:
@@ -467,10 +465,9 @@ async def on_raw_reaction_remove(payload):
 				await member.remove_roles(role)
 			except discord.Forbidden:
 				await system_notification(
-					"Someone tried to remove a role from themselves but I do not have"
-					" permissions to remove it. Ensure that I have a role that is"
-					" hierarchically higher than the role I have to remove, and that I"
-					" have the `Manage Roles` permission."
+						"Кто-то пытался добавить себе роль, но у меня нет прав для ее добавления."
+						" Убедитесь, что у меня есть роль, которая иерархически выше, чем роль, "
+						"которую я должен назначить, и что у меня есть разрешение `Управление ролями`."
 				)
 
 
@@ -481,16 +478,15 @@ async def new(ctx):
 		# For future prompts (see: "async def on_message(message)")
 		started = db.start_creation(ctx.message.author.id, ctx.message.channel.id)
 		if started:
-			await ctx.send("Mention the #channel where to send the auto-role message.")
+			await ctx.send("Упомяните #канал, куда я должен отправить сообщение авто-роли.")
 		else:
 			await ctx.send(
-				"You are already creating a reaction-role message in this channel. "
-				f"Use another channel or run `g!abort` first."
+				"Вы уже создаёте авто-роль сообщение. "
+				f"Используйте другой канал или напишите `g!rr-abort` сперва."
 			)
 	else:
 		await ctx.send(
-			f"You do not have an admin role. You might want to use `g!admin`"
-			" first."
+			f"У вас нет админ роли. Напишите `g!admin` сперва."
 		)
 
 
@@ -500,14 +496,13 @@ async def abort(ctx):
 		# Aborts setup process
 		aborted = db.abort(ctx.message.author.id, ctx.message.channel.id)
 		if aborted:
-			await ctx.send("Reaction-role message creation aborted.")
+			await ctx.send("Добавление авто-роль сообщения отменено.")
 		else:
 			await ctx.send(
-				"There are no reaction-role message creation processes started by you"
-				" in this channel."
+				"Нет запущенных вами процессов создания роль-реакции сообщения в этом канале."
 			)
 	else:
-		await ctx.send(f"You do not have an admin role.")
+		await ctx.send(f"У вас нет админ роли.")
 
 
 @bot.command(name="rr-edit")
@@ -517,33 +512,32 @@ async def edit_selector(ctx):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Type** `g!edit #channelname` to get started. Replace"
-				" `#channelname` with the channel where the reaction-role message you"
-				" wish to edit is located."
+				f"**Напиши** `g!rr-edit #имя-канала` чтобы начать. Замени"
+				" `#имя-канала` на канал, в котором находится сообщение роль-реакции сообщения, которое вы хотите отредактировать."
 			)
 			return
 		elif len(msg_values) == 2:
 			try:
 				channel_id = ctx.message.channel_mentions[0].id
 			except IndexError:
-				await ctx.send("You need to mention a channel.")
+				await ctx.send("Вам нужно упомянуть канал.")
 				return
 
 			all_messages = db.fetch_messages(channel_id)
 			if isinstance(all_messages, Exception):
 				await system_notification(
-					f"Database error when fetching messages:\n```\n{all_messages}\n```"
+					f"Ошибка базы данных при получении сообщений:\n```\n{all_messages}\n```"
 				)
 				return
 			channel = bot.get_channel(channel_id)
 			if len(all_messages) == 1:
 				await ctx.send(
-					"There is only one reaction-role message in this channel."
-					f" **Type**:\n```\ng!edit #{channel.name} // 1 // New Message"
-					" // New Embed Title (Optional) // New Embed Description"
-					" (Optional)\n```\nto edit the reaction-role message. You can type"
-					" `none` in any of the argument fields above (e.g. `New Message`)"
-					" to make the bot ignore it."
+					"В этом канале есть только одно сообщение ролm-реакции."
+					f" **Напиши**:\n```\ng!rr-edit #{channel.name} // 1 // Новое сообщение"
+					" // Новый заголовок (Опционально) // Новая подпись заголовка"
+					" (Опционально)\n```\nчтобы редактировать сообщение роль-реакции. Вы также можете вписать"
+					" `none` в любой из аргументов выше"
+					" чтобы бот проигнорировал их."
 				)
 			elif len(all_messages) > 1:
 				selector_msgs = []
@@ -556,8 +550,8 @@ async def edit_selector(ctx):
 						continue
 					except discord.Forbidden:
 						ctx.send(
-							"I do not have permissions to edit a reaction-role message"
-							f" that I previously created.\n\nID: {msg_id} in"
+							"У меня нет прав на редактирование сообщения роль-реакции"
+							f" которое я создал ранее.\n\nID: {msg_id} в"
 							f" {channel.mention}"
 						)
 						continue
@@ -569,17 +563,18 @@ async def edit_selector(ctx):
 					counter += 1
 
 				await ctx.send(
-					f"There are **{len(all_messages)}** reaction-role messages in this"
-					f" channel. **Type**:\n```\ng!edit #{channel.name} //"
-					" MESSAGE_NUMBER // New Message // New Embed Title (Optional) //"
-					" New Embed Description (Optional)\n```\nto edit the desired one."
-					" You can type `none` in any of the argument fields above (e.g."
-					" `New Message`) to make the bot ignore it. The list of the"
-					" current reaction-role messages is:\n\n"
+					f"Здесь **{len(all_messages)}** сообщений роль-реакции в этом"
+					f" канале. **Напиши**:\n```\ng!rr-edit #{channel.name} //"
+					" НОМЕР_СООБЩЕНИЯ // Новое сообщение"
+					" // Новый заголовок (Опционально) // Новая подпись заголовка \n```\nчтобы отредактировать нужное сообщение."
+					" Вы также можете вписать"
+					" `none` в любой из аргументов выше"
+					" чтобы бот проигнорировал их. Список"
+					" текущих сообщений роль-реакции:\n\n"
 					+ "\n".join(selector_msgs)
 				)
 			else:
-				await ctx.send("There are no reaction-role messages in that channel.")
+				await ctx.send("В этом канале нет сообщений роль-реакции.")
 		elif len(msg_values) > 2:
 			try:
 				# Tries to edit the reaction-role message
@@ -591,8 +586,8 @@ async def edit_selector(ctx):
 				all_messages = db.fetch_messages(channel_id)
 				if isinstance(all_messages, Exception):
 					await system_notification(
-						"Database error when fetching"
-						f" messages:\n```\n{all_messages}\n```"
+						"Ошибка базы данных при получении сообщений:"
+						f"\n```\n{all_messages}\n```"
 					)
 					return
 				counter = 1
@@ -607,7 +602,7 @@ async def edit_selector(ctx):
 						counter += 1
 				else:
 					await ctx.send(
-						"You selected a reaction-role message that does not exist."
+						"Вы выбрали сообщение роль-реакции, которое не существует."
 					)
 					return
 
@@ -615,9 +610,8 @@ async def edit_selector(ctx):
 					old_msg = await channel.fetch_message(int(message_to_edit_id))
 				else:
 					await ctx.send(
-						"Select a valid reaction-role message number (i.e. the number"
-						" to the left of the reaction-role message content in the list"
-						" above)."
+						"Выберите допустимый номер сообщения роль-реакции "
+						"(т.е. номер слева от содержимого сообщения роли реакции в списке выше)."
 					)
 					return
 
@@ -648,20 +642,20 @@ async def edit_selector(ctx):
 					await old_msg.edit(
 						content=selector_msg_new_body, embed=selector_embed
 					)
-					await ctx.send("Message edited.")
+					await ctx.send("Сообщение изменено.")
 				else:
 					await ctx.send(
-						"You can't use an empty message as role-reaction message."
+						"Вы не можете использовать пустое сообщение в качестве сообщения роль-реакции."
 					)
 
 			except IndexError:
-				await ctx.send("The channel you mentioned is invalid.")
+				await ctx.send("Канал, который вы упомянули, недействителен..")
 
 			except discord.Forbidden:
-				await ctx.send("I do not have permissions to edit the message.")
+				await ctx.send("У меня нет прав на редактирование данного сообщения.")
 
 	else:
-		await ctx.send("You do not have an admin role.")
+		await ctx.send("У вас нет админ роли")
 
 
 @bot.command(name="rm-embed")
@@ -671,30 +665,30 @@ async def remove_selector_embed(ctx):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Type** `g!rm-embed #channelname` to get started. Replace"
-				" `#channelname` with the channel where the reaction-role message you"
-				" wish to remove its embed is located."
+				f"**Напиши** `g!rm-embed #имя-канала` чтобы начать. Замени"
+				" `#имя-канала` на канал, где сообщение роль-реакции вы"
+				" хотите убрать."
 			)
 			return
 		elif len(msg_values) == 2:
 			try:
 				channel_id = ctx.message.channel_mentions[0].id
 			except IndexError:
-				await ctx.send("The channel you mentioned is invalid.")
+				await ctx.send("Канал, который вы упомянули, недействителен.")
 				return
 
 			channel = bot.get_channel(channel_id)
 			all_messages = db.fetch_messages(channel_id)
 			if isinstance(all_messages, Exception):
 				await system_notification(
-					f"Database error when fetching messages:\n```\n{all_messages}\n```"
+					f"Ошибка базы данных при получении сообщений:\n```\n{all_messages}\n```"
 				)
 				return
 			if len(all_messages) == 1:
 				await ctx.send(
-					"There is only one reaction-role message in this channel. **Type**:"
+					"В этом канале есть только одно сообщение роль-реакции. **Напиши**:"
 					f"\n```\ng!rm-embed #{channel.name} // 1\n```"
-					"\nto remove the reaction-role message's embed."
+					"\nчтобы убрать эмбед с этого сообщения."
 				)
 			elif len(all_messages) > 1:
 				selector_msgs = []
@@ -707,8 +701,8 @@ async def remove_selector_embed(ctx):
 						continue
 					except discord.Forbidden:
 						ctx.send(
-							"I do not have permissions to edit a reaction-role message"
-							f" that I previously created.\n\nID: {msg_id} in"
+							"У меня нет прав чтобы изменять сообщение"
+							f" которое я раньше создал.\n\nID: {msg_id} в"
 							f" {channel.mention}"
 						)
 						continue
@@ -720,14 +714,14 @@ async def remove_selector_embed(ctx):
 					counter += 1
 
 				await ctx.send(
-					f"There are **{len(all_messages)}** reaction-role messages in this"
-					f" channel. **Type**:\n```\ng!rm-embed #{channel.name} //"
-					" MESSAGE_NUMBER\n```\nto remove its embed. The list of the"
-					" current reaction-role messages is:\n\n"
+					f"Здесь **{len(all_messages)}** сообщений авто-роли в этом"
+					f" канале. **Напиши**:\n```\ng!rm-embed #{channel.name} //"
+					" НОМЕР_СООБЩЕНИЯ\n```\nчтобы убрать конкретный. Текущий список"
+					" авто-роль сообщений:\n\n"
 					+ "\n".join(selector_msgs)
 				)
 			else:
-				await ctx.send("There are no reaction-role messages in that channel.")
+				await ctx.send("В этом канале нет авто-роль сообщений.")
 		elif len(msg_values) > 2:
 			try:
 				# Tries to edit the reaction-role message
@@ -739,8 +733,8 @@ async def remove_selector_embed(ctx):
 				all_messages = db.fetch_messages(channel_id)
 				if isinstance(all_messages, Exception):
 					await system_notification(
-						"Database error when fetching"
-						f" messages:\n```\n{all_messages}\n```"
+						"Ошибка датабазы при измененеии"
+						f" сообщений:\n```\n{all_messages}\n```"
 					)
 					return
 				counter = 1
@@ -755,7 +749,7 @@ async def remove_selector_embed(ctx):
 						counter += 1
 				else:
 					await ctx.send(
-						"You selected a reaction-role message that does not exist."
+						"Вы выбрали сообщение которое не существует."
 					)
 					return
 
@@ -763,36 +757,35 @@ async def remove_selector_embed(ctx):
 					old_msg = await channel.fetch_message(int(message_to_edit_id))
 				else:
 					await ctx.send(
-						"Select a valid reaction-role message number (i.e. the number"
-						" to the left of the reaction-role message content in the list"
-						" above)."
+						"Выберите допустимый номер сообщения роль-реакции "
+						"(т.е. номер слева от содержимого сообщения роли реакции в списке выше)."
 					)
 					return
 
 				try:
 					await old_msg.edit(embed=None)
-					await ctx.send("Embed Removed.")
+					await ctx.send("Эмбед удалён.")
 				except discord.HTTPException as e:
 					if e.code == 50006:
 						await ctx.send(
-							"You can't remove an embed if its message is empty. Please"
-							f" edit the message first with: \n`g!edit"
+							"Вы не можете удалить эмбед, если ее сообщение пусто. Пожалуйста"
+							f" сперва измените это сообщение с помощью: \n`g!rr-edit"
 							f" #{ctx.message.channel_mentions[0]} //"
-							f" {selector_msg_number} // New Message`"
+							f" {selector_msg_number} // Новое сообщение`"
 						)
 					else:
 						await ctx.send(str(e))
 
 			except IndexError:
-				await ctx.send("The channel you mentioned is invalid.")
+				await ctx.send("Канал, который вы упомянули, недействителен.")
 
 			except discord.Forbidden:
-				await ctx.send("I do not have permissions to edit the message.")
+				await ctx.send("У меня нет прав на редактирование сообщения.")
 
 	else:
-		await ctx.send("You do not have an admin role.")
+		await ctx.send("У вас нет админ роли")
 
-@bot.command(name="admin")
+@bot.command(name="rr-admin")
 @commands.has_permissions(administrator=True)
 async def add_admin(ctx):
 	# Adds an admin role ID to the database
@@ -802,18 +795,18 @@ async def add_admin(ctx):
 		try:
 			role = int(ctx.message.content.split()[1])
 		except ValueError:
-			await ctx.send("Please mention a valid @Role or role ID.")
+			await ctx.send("Укажите сущесвующую @Роль или её ID.")
 			return
 		except IndexError:
-			await ctx.send("Please mention a @Role or role ID.")
+			await ctx.send("Укажите сущесвующую @Роль или её ID.")
 			return
 	add = db.add_admin(role)
 	if isinstance(add, Exception):
 		await system_notification(
-			f"Database error when adding a new admin:\n```\n{add}\n```"
+			f"Ошибка базы данных при добавлении нового администратора:\n```\n{add}\n```"
 		)
 		return
-	await ctx.send("Added the role to my admin list.")
+	await ctx.send("Добавил роль в мой список администраторов.")
 
 
 @bot.command(name="rm-admin")
@@ -826,18 +819,18 @@ async def remove_admin(ctx):
 		try:
 			role = int(ctx.message.content.split()[1])
 		except ValueError:
-			await ctx.send("Please mention a valid @Role or role ID.")
+			await ctx.send("Укажите сущесвующую @Роль или её ID.")
 			return
 		except IndexError:
-			await ctx.send("Please mention a @Role or role ID.")
+			await ctx.send("Укажите сущесвующую @Роль или её ID.")
 			return
 	remove = db.remove_admin(role)
 	if isinstance(remove, Exception):
 		await system_notification(
-			f"Database error when removing an admin:\n```\n{remove}\n```"
+			f"Ошибка базы данных при удалении администратора:\n```\n{remove}\n```"
 		)
 		return
-	await ctx.send("Removed the role from my admin list.")
+	await ctx.send("Удалил роль из моего списка администраторов.")
 
 
 @bot.command(name="adminlist")
@@ -847,7 +840,7 @@ async def list_admin(ctx):
 	admin_ids = db.get_admins()
 	if isinstance(admin_ids, Exception):
 		await system_notification(
-			f"Database error when fetching admins:\n```\n{admin_ids}\n```"
+			f"Ошибка базы данных при получении администраторов:\n```\n{admin_ids}\n```"
 		)
 		return
 	server = bot.get_guild(ctx.message.guild.id)
@@ -862,25 +855,26 @@ async def list_admin(ctx):
 
 	if local_admins and foreign_admins:
 		await ctx.send(
-			"The bot admins on this server are:\n- "
+			"Админы бота на этом сервере:\n- "
 			+ "\n- ".join(local_admins)
-			+ "\n\nThe bot admins from other servers are:\n- "
-			+ "\n- ".join(foreign_admins)
+#			+ "\n\nThe bot admins from other servers are:\n- "
+#			+ "\n- ".join(foreign_admins)
 		)
 	elif local_admins and not foreign_admins:
 		await ctx.send(
 			"The bot admins on this server are:\n- "
-			+ "\n- ".join(local_admins)
-			+ "\n\nThere are no bot admins from other servers."
+#			+ "\n- ".join(local_admins)
+#			+ "\n\nThere are no bot admins from other servers."
 		)
 	elif not local_admins and foreign_admins:
 		await ctx.send(
-			"There are no bot admins on this server.\n\nThe bot admins from other"
-			" servers are:\n- "
-			+ "\n- ".join(foreign_admins)
+			"There are no bot admins on this server."
+#			"\n\nThe bot admins from other"
+#			" servers are:\n- "
+#			+ "\n- ".join(foreign_admins)
 		)
 	else:
-		await ctx.send("There are no bot admins registered.")
+		await ctx.send("Нет зарегистрированных администраторов ботов.")
 
 @bot.command()
 async def tyan(ctx):
