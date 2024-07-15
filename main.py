@@ -31,7 +31,7 @@ handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(m
 logger.addHandler(handleri)
 logger.addHandler(handlers)
 
-token = "OTk3NDIxNjk2Mzg0NTA3OTA0.GcOgBO.JoUxNv2pC22mHEMJT261nAOUPKrZXuShZa0jmA"
+token = os.environ.get("TOKEN")
 
 from discord.gateway import DiscordWebSocket
 
