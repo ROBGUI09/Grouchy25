@@ -2,12 +2,19 @@ import asyncio
 import functools
 import itertools
 import math
+import traceback
 import random
 import logging
 import discord
-import youtube_dl
+import os
+import yt_dlp as youtube_dl
 from async_timeout import timeout
 from discord.ext import commands
+import vkauth
+from dotenv import load_dotenv
+
+load_dotenv()
+vks = vkauth.VkAndroidApi(token=os.environ.get("VK_TOKEN"),secret=os.environ.get("VK_SECRET"))
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -108,6 +115,94 @@ class YTDLSource(discord.PCMVolumeTransformer):
                     info = processed_info['entries'].pop(0)
                 except IndexError:
                     raise YTDLError('Запрос `{}` ничего не нашел.'.format(webpage_url))
+
+        return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
+
+    @staticmethod
+    def parse_duration(duration: int):
+        minutes, seconds = divmod(duration, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+
+        duration = []
+        if days > 0:
+            duration.append('{} days'.format(days))
+        if hours > 0:
+            duration.append('{} hours'.format(hours))
+        if minutes > 0:
+            duration.append('{} minutes'.format(minutes))
+        if seconds > 0:
+            duration.append('{} seconds'.format(seconds))
+
+        return ', '.join(duration)
+
+class VKError(Exception):
+    pass
+
+
+class VKSource(discord.PCMVolumeTransformer):
+    FFMPEG_OPTIONS = {
+        'before_options': '-reconnect 1 -http_persistent false -max_reload 2147483647 -m3u8_hold_counters 2147483647',
+        'options': '-vn',
+    }
+
+    def __init__(self, ctx: commands.Context, source: discord.FFmpegPCMAudio, *, data: dict, volume: float = 0.5):
+        super().__init__(source, volume)
+
+        self.requester = ctx.author
+        self.channel = ctx.channel
+        self.data = data
+
+        self.uploader = data.get('uploader')
+        self.uploader_url = data.get('uploader_url')
+        date = data.get('upload_date')
+        self.upload_date = f"<t:{date}> (<t:{date}:R>)"
+        self.title = data.get('title')
+        self.thumbnail = data.get('thumbnail')
+        self.description = data.get('description')
+        self.duration = self.parse_duration(int(data.get('duration')))
+        self.tags = data.get('tags')
+        self.url = data.get('webpage_url')
+        self.views = data.get('view_count')
+        self.likes = data.get('like_count')
+        self.dislikes = data.get('dislike_count')
+        self.stream_url = data.get('url')
+
+    def __str__(self):
+        return '**{0.title}** от **{0.uploader}**'.format(self)
+
+    @classmethod
+    async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
+#        loop = loop or asyncio.get_event_loop()
+        data = vks.method("audio.search", q=search, count=1, auto_complete=1)
+
+        if len(data.get("response",{}).get('items',[])) == 0:
+            raise VKError('По запросу `{}` ничего не найдено.'.format(search))
+
+        audio = data['response']['items'][0]
+
+        return await cls._parse_audio(ctx, audio)
+
+    @classmethod
+    async def _parse_audio(cls, ctx: commands.Context, audio: dict):
+        if audio['url'] == "":
+            return None
+
+        info = {
+            'uploader':audio['artist'],
+            'uploader_url':"https://vk.com/music/artist/"+audio['main_artists'][0]['domain'] if 'main_artists' in audio.keys() else "https://youtu.be/f-tLr7vONmc",
+            'upload_date': audio['date'],
+            'title': audio['title'],
+            'thumbnail': audio['thumb']["photo_{}".format(audio['thumb']['width'])] if 'thumb' in audio.keys() else "",
+            'description':"",
+            'duration':audio['duration'],
+            'tags':'',
+            'webpage_url':"https://vk.com/audio{}_{}_{}".format(audio["owner_id"],audio["id"],audio["access_key"]),
+            'views':0,
+            'likes':0,
+            'dislikes':0,
+            'url':audio['url']
+        }
 
         return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
 
@@ -281,6 +376,7 @@ class Music(commands.Cog):
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
         await ctx.send('An error occurred: {}'.format(str(error)))
+        traceback.print_exception(error)
 
     @commands.command(name='join', invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
@@ -309,7 +405,6 @@ class Music(commands.Cog):
 
         ctx.voice_state.voice = await destination.connect()
 
-    
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if member == self.bot.user:
@@ -468,16 +563,58 @@ class Music(commands.Cog):
         if not ctx.voice_state.voice:
             await ctx.invoke(self._join)
 
+        provider = YTDLSource
+
+        if search.startswith("vk+"):
+            provider = VKSource
+            search = search[3:]
+
         async with ctx.typing():
             try:
-                source = await YTDLSource.create_source(ctx, search, loop=self.bot.loop)
-            except YTDLError as e:
+                source = await provider.create_source(ctx, search, loop=self.bot.loop)
+            except (YTDLError, VKError) as e:
                 await ctx.send('Во время обработки запроса произошла ошибка: {}'.format(str(e)))
             else:
                 song = Song(source)
 
                 await ctx.voice_state.songs.put(song)
                 await ctx.send('Добавлено в очередь: {}'.format(str(source)))
+
+    @commands.command(name='playlist')
+    async def _playlist(self, ctx: commands.Context, *, url: str):
+        """Добавить ВК плейлист (альбом) в очередь по ссылке
+        """
+
+        if not url.startswith("https://vk.com"):
+            await ctx.send('Поддерживается только импорт плейлистов.')
+
+        if not ctx.voice_state.voice:
+            await ctx.invoke(self._join)
+
+        async with ctx.typing():
+            owner_id, playlist_id, access_key = url.split('/')[-1].split("_")
+            pl = vks.method("audio.getPlaylistById",owner_id=owner_id,playlist_id=playlist_id,access_key=access_key)['response']
+            songs = []
+            while len(songs) < pl['count']:
+                songs += vks.method("audio.get", owner_id=owner_id, album_id=playlist_id, access_key=access_key, offset = len(songs))['response']['items']
+
+            dead = False
+
+            for audio in songs:
+                try:
+                    source = await VKSource._parse_audio(ctx,audio)
+                except VKError as e:
+                    await ctx.send('Во время обработки запроса произошла ошибка: {}'.format(str(e)))
+                else:
+                    if source == None:
+                        dead = True
+                        continue
+                    song = Song(source)
+
+                    await ctx.voice_state.songs.put(song)
+
+            warn = "\n⚠️ Один (или несколько) треков в плейлисте (альбоме) были отозваны или заблокированы, они были автоматически пропущены при импорте." if dead else ""
+            await ctx.send(('Добавлено в очередь: {}'.format(str(source)))+warn)
 
     @_join.before_invoke
     @_play.before_invoke

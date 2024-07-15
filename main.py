@@ -9,17 +9,21 @@ import utils, time
 import asyncio
 import database
 import voice
-import icon
+#import icon
 import logging
-import discord_logging
-import speech
+#import discord_logging
+#import speech
 import mod
 import requests
 import roulette
+from dotenv import load_dotenv
 
-logger = logging.getLogger() 
+load_dotenv()
+logger = logging.getLogger()
 intents = discord.Intents.default()
+
 intents.members = True
+intents.message_content = True
 
 handleri = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
 handleri.setLevel(logging.INFO)
@@ -31,7 +35,7 @@ handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(m
 logger.addHandler(handleri)
 logger.addHandler(handlers)
 
-token = os.environ.get("TOKEN")
+token = os.environ.get("BOT_TOKEN")
 
 from discord.gateway import DiscordWebSocket
 
@@ -52,7 +56,7 @@ bot = commands.Bot(command_prefix=('g!'),intents=intents)
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
-db = database.Database("../reactionlight.db")
+db = database.Database("reactionlight.db")
 botcolour = 0
 botname = "От Grouchy И Kelk'а"
 logo = "https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png"
@@ -74,8 +78,8 @@ def isadmin(user):
 				
 @bot.event
 async def on_ready():
-	chan = bot.get_channel(997789286596366386)
-	await chan.send("Бот в сети! :partying_face:")
+#	chan = bot.get_channel(997789286596366386)
+#	await chan.send("Бот в сети! :partying_face:")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
 	print("Grouchy is online!")
 	
@@ -87,108 +91,7 @@ async def info(ctx):
 	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
 	await ctx.message.reply(embed=embed)
 	
-@bot.command()
-async def __monika(ctx):
-	images = [
-		"https://cdn.discordapp.com/attachments/932191860712177664/997839931932168272/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997840025498697810/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997840132801560586/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997840511681433691/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997840534984990750/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997840974938128415/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997841175039983616/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997841262960984144/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997841601072214077/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997841652326596738/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997841963627851886/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001959774570676224/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001959859153027112/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001959887871418490/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960100359061584/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960105606119504/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960189878083696/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960311827480666/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960329942679682/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960396875370637/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960429851004980/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960464722448394/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960606166954035/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960644121198672/unknown.png"
-	]
-	embed=discord.Embed(title="Моника", description=f"Запрошено {ctx.message.author.mention}", color=0)
-	embed.set_image(url=random.choice(images))
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
-	await ctx.message.reply(embed=embed)
 
-@bot.command()
-async def __yuri(ctx):
-	images = [
-		"https://cdn.discordapp.com/attachments/932191860712177664/997842824420659301/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997842856590979163/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997842885057708043/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997842982587879465/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997843380572782703/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997843489079427082/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997843579638661260/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997843719178948668/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997843991104069723/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997844446995562526/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960929166102569/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001960954109640704/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961180400730172/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961348873334864/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961349192105984/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961470994694274/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961525344481290/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961662225596477/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001961753418154034/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/1001962504844484809/unknown.png"
-	]
-	embed=discord.Embed(title="Юри", description=f"Запрошено {ctx.message.author.mention}", color=0)
-	embed.set_image(url=random.choice(images))
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
-	await ctx.message.reply(embed=embed)
-	
-@bot.command()
-async def __natsuki(ctx):
-	images = [
-		"https://cdn.discordapp.com/attachments/932191860712177664/997844940761616495/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997844989591699486/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997845133607305296/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997845346891870339/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997845405360459807/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997845640652542083/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997845808605052988/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997846160683307069/unknown.png",
-	]
-	embed=discord.Embed(title="Натцуки", description=f"Запрошено {ctx.message.author.mention}", color=0)
-	embed.set_image(url=random.choice(images))
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
-	await ctx.message.reply(embed=embed)
-	
-@bot.command()
-async def __sayori(ctx):
-	images = [
-		"https://cdn.discordapp.com/attachments/932191860712177664/997847464004550786/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997847757303857202/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997848061231505438/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997848101048045648/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997848191363973170/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997848714427240538/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997848740301918228/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997849176471781376/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997849455833395210/unknown.png",
-		"https://cdn.discordapp.com/attachments/932191860712177664/997850372108451911/unknown.png"
-	]
-	embed=discord.Embed(title="Сайори", description=f"Запрошено {ctx.message.author.mention}", color=0)
-	embed.set_image(url=random.choice(images))
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
-	await ctx.message.reply(embed=embed)
-	
-@bot.command()
-async def hentai(ctx):
-	await ctx.message.reply("|| https://cdn.discordapp.com/attachments/932191860712177664/1038421047701143582/lol.mp4 ||")
-	
 @bot.command()
 async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`") #, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`
@@ -898,7 +801,7 @@ async def neko(ctx):
 async def setup_cogs():
 	await bot.add_cog(music.Music(bot))
 	await bot.add_cog(voice.Voice(bot))
-	await bot.add_cog(speech.Speech(bot))
+#	await bot.add_cog(speech.Speech(bot))
 	#bot.add_cog(icon.ServerIcon(bot))
 	mod.setup(bot)
 	await bot.add_cog(roulette.Game(bot))
