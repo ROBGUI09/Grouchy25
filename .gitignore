@@ -51,6 +51,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 reactionlight.db
+voice.db
 
 # Translations
 *.mo
