@@ -5,3 +5,5 @@ yt-dlp
 validators
 discord-logging
 pynacl
+async-timeout
+psutil

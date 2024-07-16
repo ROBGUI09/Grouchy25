@@ -52,14 +52,16 @@ class MyDiscordWebSocket(DiscordWebSocket):
 
 DiscordWebSocket.from_client = MyDiscordWebSocket.from_client
 
-bot = commands.Bot(command_prefix=('g!'),intents=intents)
+prefix = "s!"
+
+bot = commands.Bot(command_prefix=(prefix),intents=intents)
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
 db = database.Database("reactionlight.db")
-botcolour = 0
-botname = "От Grouchy И Kelk'а"
-logo = "https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png"
+botcolour = 16734003
+botname = "Зверя нет сильней китайца, Стая блох, соси нам яйца"
+logo = "https://i.pinimg.com/originals/f2/5f/3d/f25f3d95d5f15a1f28b89564ee8ad109.gif"
 
 def system_notification(data):
 	print(data)
@@ -80,26 +82,26 @@ def isadmin(user):
 async def on_ready():
 #	chan = bot.get_channel(997789286596366386)
 #	await chan.send("Бот в сети! :partying_face:")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="g!help"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="s!help"))
 	print("Grouchy is online!")
 	
 @bot.command()
 async def info(ctx):
-	embed=discord.Embed(title="Информация", description="Я стал первым приложением,которое было созданно по инициативе Grouchy. На данный момент я являюсь ботом помощником,но возможно скоро вы сможете полноценно со мной поговорить", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ", color=0)
+	embed=discord.Embed(title="Информация", description="E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S E S", url="https://www.youtube.com/watch?v=dQw4w9WgXcQ", colour=botcolour)
 	embed.add_field(name="Kelk", value="https://t.me/itsKelk", inline=True)
 	embed.add_field(name="Grouchy", value="https://t.me/grouchy25", inline=True)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	embed.set_footer(icon_url=logo, text=botname)
 	await ctx.message.reply(embed=embed)
 	
 
 @bot.command()
 async def help(ctx):
-	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `g!`") #, `g!monika`, `g!yuri`, `g!natsuki`, `g!sayori`
-	embed.add_field(name="Мои команды", value="`g!info`, `g!help`, `g!hentai`, `g!ping`, `g!donate`, `g!hello`, `g!howru`, `g!8ball`, `g!weather`", inline=False)
-	embed.add_field(name="Музыка", value="`g!join`, `g!summon`, `g!leave`, `g!volume`, `g!now`, `g!pause`, `g!resume`, `g!stop`, `g!skip`, `g!queue`, `g!shuffle`, `g!remove`, `g!loop`, `g!play`", inline=False)
-	embed.add_field(name="Reaction Roles", value="`g!rr-new`, `g!rr-abort`, `g!rr-edit`, `g!rm-embed`", inline=False)
-	embed.add_field(name="Приватные войсы", value="`g!pv-setup` (прописывать владельцу сервера), `g!pv-limit`, `g!pv-lock`, `g!pv-unlock`, `g!pv-allow`, `g!pv-deny`, `g!pv-limit`, `g!pv-name`, `g!pv-claim`", inline=False)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `s!`",colour=botcolour) #, `s!monika`, `s!yuri`, `s!natsuki`, `s!sayori`
+	embed.add_field(name="Мои команды", value="`s!info`, `s!help`, `s!hentai`, `s!ping`, `s!donate`, `s!hello`, `s!howru`, `s!8ball`, `s!weather`", inline=False)
+	embed.add_field(name="Музыка", value="`s!playlist`, `s!join`, `s!summon`, `s!leave`, `s!volume`, `s!now`, `s!pause`, `s!resume`, `s!stop`, `s!skip`, `s!queue`, `s!shuffle`, `s!remove`, `s!loop`, `s!play`", inline=False)
+	embed.add_field(name="Reaction Roles", value="`s!rr-new`, `s!rr-abort`, `s!rr-edit`, `s!rm-embed`", inline=False)
+	embed.add_field(name="Приватные войсы", value="`s!pv-setup` (прописывать владельцу сервера), `s!pv-limit`, `s!pv-lock`, `s!pv-unlock`, `s!pv-allow`, `s!pv-deny`, `s!pv-limit`, `s!pv-name`, `s!pv-claim`", inline=False)
+	embed.set_footer(icon_url=logo, text=botname)
 	await ctx.message.reply(embed=embed)
 	
 @bot.command()
@@ -120,28 +122,28 @@ async def howru(ctx):
 	
 @bot.command(name="8ball")
 async def ball(ctx, *arg):
-	embed=discord.Embed(description=f"{ctx.message.author.mention} спросил у магического шара: **"+" ".join(arg)+"**")
+	embed=discord.Embed(description=f"{ctx.message.author.mention} спросил у магического шара: **"+" ".join(arg)+"**",colour=botcolour)
 	embed.add_field(name="Шар ответил:", value=random.choice(ballanswers), inline=False)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	embed.set_footer(icon_url=logo, text=botname)
 	await ctx.message.reply(embed=embed)
 	
 @bot.command()
 async def weather(ctx, *args):
 	arg = " ".join(args)
 	if arg == "":
-		embed=discord.Embed(description=":warning: Укажите город")
-		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+		embed=discord.Embed(description=":warning: Укажите город",colour=botcolour)
+		embed.set_footer(icon_url=logo, text=botname)
 		await ctx.message.reply(embed=embed)
 		return
 	try:
 		weather = get_weather(arg)
 		icon = ":cloud:" if weather.weather.status == "Clouds" else ":sunny:" if weather.weather.status == "Clear" else ":question:"
-		embed=discord.Embed(description=icon+" В городе "+weather.location.name+" сейчас "+weather.weather.detailed_status+" ("+weather.weather.status+")")
-		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+		embed=discord.Embed(description=icon+" В городе "+weather.location.name+" сейчас "+weather.weather.detailed_status+" ("+weather.weather.status+")",colour=botcolour)
+		embed.set_footer(icon_url=logo, text=botname)
 		await ctx.message.reply(embed=embed)
 	except NotFoundError:
-		embed=discord.Embed(description=":warning: Город \""+arg+"\" не найден!")
-		embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+		embed=discord.Embed(description=":warning: Город \""+arg+"\" не найден!",colour=botcolour)
+		embed.set_footer(icon_url=logo, text=botname)
 		await ctx.message.reply(embed=embed)
 		
 @bot.command()
@@ -387,11 +389,11 @@ async def new(ctx):
 		else:
 			await ctx.send(
 				"Вы уже создаёте авто-роль сообщение. "
-				f"Используйте другой канал или напишите `g!rr-abort` сперва."
+				f"Используйте другой канал или напишите `s!rr-abort` сперва."
 			)
 	else:
 		await ctx.send(
-			f"У вас нет админ роли. Напишите `g!admin` сперва."
+			f"У вас нет админ роли. Напишите `s!admin` сперва."
 		)
 
 
@@ -417,7 +419,7 @@ async def edit_selector(ctx):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Напиши** `g!rr-edit #имя-канала` чтобы начать. Замени"
+				f"**Напиши** `s!rr-edit #имя-канала` чтобы начать. Замени"
 				" `#имя-канала` на канал, в котором находится сообщение роль-реакции сообщения, которое вы хотите отредактировать."
 			)
 			return
@@ -438,7 +440,7 @@ async def edit_selector(ctx):
 			if len(all_messages) == 1:
 				await ctx.send(
 					"В этом канале есть только одно сообщение ролm-реакции."
-					f" **Напиши**:\n```\ng!rr-edit #{channel.name} // 1 // Новое сообщение"
+					f" **Напиши**:\n```\ns!rr-edit #{channel.name} // 1 // Новое сообщение"
 					" // Новый заголовок (Опционально) // Новая подпись заголовка"
 					" (Опционально)\n```\nчтобы редактировать сообщение роль-реакции. Вы также можете вписать"
 					" `none` в любой из аргументов выше"
@@ -469,7 +471,7 @@ async def edit_selector(ctx):
 
 				await ctx.send(
 					f"Здесь **{len(all_messages)}** сообщений роль-реакции в этом"
-					f" канале. **Напиши**:\n```\ng!rr-edit #{channel.name} //"
+					f" канале. **Напиши**:\n```\ns!rr-edit #{channel.name} //"
 					" НОМЕР_СООБЩЕНИЯ // Новое сообщение"
 					" // Новый заголовок (Опционально) // Новая подпись заголовка \n```\nчтобы отредактировать нужное сообщение."
 					" Вы также можете вписать"
@@ -524,7 +526,7 @@ async def edit_selector(ctx):
 				selector_msg_new_body = (
 					msg_values[2] if msg_values[2].lower() != "none" else None
 				)
-				selector_embed = discord.Embed()
+				selector_embed = discord.Embed(colour=botcolour)
 				if len(msg_values) == 3 and old_msg.embeds:
 					selector_embed = old_msg.embeds[0]
 				if len(msg_values) > 3 and msg_values[3].lower() != "none":
@@ -570,7 +572,7 @@ async def remove_selector_embed(ctx):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Напиши** `g!rm-embed #имя-канала` чтобы начать. Замени"
+				f"**Напиши** `s!rm-embed #имя-канала` чтобы начать. Замени"
 				" `#имя-канала` на канал, где сообщение роль-реакции вы"
 				" хотите убрать."
 			)
@@ -592,7 +594,7 @@ async def remove_selector_embed(ctx):
 			if len(all_messages) == 1:
 				await ctx.send(
 					"В этом канале есть только одно сообщение роль-реакции. **Напиши**:"
-					f"\n```\ng!rm-embed #{channel.name} // 1\n```"
+					f"\n```\ns!rm-embed #{channel.name} // 1\n```"
 					"\nчтобы убрать эмбед с этого сообщения."
 				)
 			elif len(all_messages) > 1:
@@ -620,7 +622,7 @@ async def remove_selector_embed(ctx):
 
 				await ctx.send(
 					f"Здесь **{len(all_messages)}** сообщений авто-роли в этом"
-					f" канале. **Напиши**:\n```\ng!rm-embed #{channel.name} //"
+					f" канале. **Напиши**:\n```\ns!rm-embed #{channel.name} //"
 					" НОМЕР_СООБЩЕНИЯ\n```\nчтобы убрать конкретный. Текущий список"
 					" авто-роль сообщений:\n\n"
 					+ "\n".join(selector_msgs)
@@ -674,7 +676,7 @@ async def remove_selector_embed(ctx):
 					if e.code == 50006:
 						await ctx.send(
 							"Вы не можете удалить эмбед, если ее сообщение пусто. Пожалуйста"
-							f" сперва измените это сообщение с помощью: \n`g!rr-edit"
+							f" сперва измените это сообщение с помощью: \n`s!rr-edit"
 							f" #{ctx.message.channel_mentions[0]} //"
 							f" {selector_msg_number} // Новое сообщение`"
 						)
@@ -784,17 +786,17 @@ async def list_admin(ctx):
 @bot.command()
 async def tyan(ctx):
 	url = requests.get("https://api.waifu.pics/sfw/waifu").json()['url']
-	embed=discord.Embed(title="Тян", description=f"Запрошено {ctx.message.author.mention}", color=0)
+	embed=discord.Embed(title="Тян", description=f"Запрошено {ctx.message.author.mention}", color=botcolour)
 	embed.set_image(url=url)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	embed.set_footer(icon_url=logo, text=botname)
 	await ctx.message.reply(embed=embed)
 
 @bot.command()
 async def neko(ctx):
 	url = requests.get("https://nekos.life/api/v2/img/neko").json()['url']
-	embed=discord.Embed(title="Неко", description=f"Запрошено {ctx.message.author.mention}", color=0)
+	embed=discord.Embed(title="Неко", description=f"Запрошено {ctx.message.author.mention}", color=botcolour)
 	embed.set_image(url=url)
-	embed.set_footer(icon_url="https://cdn.discordapp.com/attachments/932191860712177664/997799046238457956/unknown.png", text="by Grouchy and Kelk")
+	embed.set_footer(icon_url=logo, text=botname)
 	await ctx.message.reply(embed=embed)
 
 	

@@ -28,7 +28,7 @@ class YTDLError(Exception):
     pass
 
 
-class YTDLSource(discord.PCMVolumeTransformer):
+class YTDLSource:
     YTDL_OPTIONS = {
         'format': 'bestaudio/best',
         'extractaudio': True,
@@ -47,14 +47,12 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
     FFMPEG_OPTIONS = {
         'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        'options': '-vn',
+        'options': '-af "bass=g=-10" -vn',
     }
 
     ytdl = youtube_dl.YoutubeDL(YTDL_OPTIONS)
 
-    def __init__(self, ctx: commands.Context, source: discord.FFmpegPCMAudio, *, data: dict, volume: float = 0.5):
-        super().__init__(source, volume)
-
+    def __init__(self, ctx: commands.Context, data: dict):
         self.requester = ctx.author
         self.channel = ctx.channel
         self.data = data
@@ -116,7 +114,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
                 except IndexError:
                     raise YTDLError('Запрос `{}` ничего не нашел.'.format(webpage_url))
 
-        return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
+        return cls(ctx, data=info)
 
     @staticmethod
     def parse_duration(duration: int):
@@ -140,15 +138,13 @@ class VKError(Exception):
     pass
 
 
-class VKSource(discord.PCMVolumeTransformer):
+class VKSource:
     FFMPEG_OPTIONS = {
-        'before_options': '-reconnect 1 -http_persistent false -max_reload 2147483647 -m3u8_hold_counters 2147483647',
-        'options': '-vn',
+        'before_options': '-reconnect 1 -http_persistent 0',
+        'options': '-af "bass=g=-10" -vn',
     }
 
-    def __init__(self, ctx: commands.Context, source: discord.FFmpegPCMAudio, *, data: dict, volume: float = 0.5):
-        super().__init__(source, volume)
-
+    def __init__(self, ctx: commands.Context, data: dict):
         self.requester = ctx.author
         self.channel = ctx.channel
         self.data = data
@@ -204,7 +200,7 @@ class VKSource(discord.PCMVolumeTransformer):
             'url':audio['url']
         }
 
-        return cls(ctx, discord.FFmpegPCMAudio(info['url'], **cls.FFMPEG_OPTIONS), data=info)
+        return cls(ctx, data=info)
 
     @staticmethod
     def parse_duration(duration: int):
@@ -323,7 +319,7 @@ class VoiceState:
                 return
 
             self.current.source.volume = self._volume
-            self.voice.play(self.current.source, after=self.play_next_song)
+            self.voice.play(discord.FFmpegPCMAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
             await self.current.source.channel.send(embed=self.current.create_embed())
 
             await self.next.wait()
@@ -446,7 +442,7 @@ class Music(commands.Cog):
     async def _pause(self, ctx: commands.Context):
         """Pauses the currently playing song."""
 
-        if not ctx.voice_state.is_playing and ctx.voice_state.voice.is_playing():
+        if ctx.voice_state.is_playing and ctx.voice_state.voice.is_playing():
             ctx.voice_state.voice.pause()
             await ctx.message.add_reaction('⏯')
 
@@ -454,7 +450,7 @@ class Music(commands.Cog):
     async def _resume(self, ctx: commands.Context):
         """Resumes a currently paused song."""
 
-        if not ctx.voice_state.is_playing and ctx.voice_state.voice.is_paused():
+        if ctx.voice_state.is_playing and ctx.voice_state.voice.is_paused():
             ctx.voice_state.voice.resume()
             await ctx.message.add_reaction('⏯')
 
@@ -614,7 +610,7 @@ class Music(commands.Cog):
                     await ctx.voice_state.songs.put(song)
 
             warn = "\n⚠️ Один (или несколько) треков в плейлисте (альбоме) были отозваны или заблокированы, они были автоматически пропущены при импорте." if dead else ""
-            await ctx.send(('Добавлено в очередь: {}'.format(str(source)))+warn)
+            await ctx.send(('Добавлено в очередь: **+{}**'.format(len(songs)))+warn)
 
     @_join.before_invoke
     @_play.before_invoke
