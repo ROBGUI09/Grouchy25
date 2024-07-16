@@ -231,7 +231,7 @@ class Song:
     def create_embed(self):
         embed = (discord.Embed(title='Сейчас играет',
                                description='```css\n{0.source.title}\n```'.format(self),
-                               color=discord.Color.blurple())
+                               color=16734003)
                  .add_field(name='Длительность', value=self.source.duration)
                  .add_field(name='Запрошено', value=self.requester.mention)
                  .add_field(name='Автор', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
@@ -262,13 +262,46 @@ class SongQueue(asyncio.Queue):
 
     def remove(self, index: int):
         del self._queue[index]
+def buttonfactory(ctx):
+    loopem = "<:sf_repeat_all:1262658054642602036>" if ctx.voice_state.loop else "<:sf_noloop:1262658351892795482>"
+    playem = "<:sf_pause:1262657998879195157>" if ctx.voice_state.voice.is_paused() else "<:sf_play:1262657939823530004>"
 
+    class PlayerButtons(discord.ui.View):
+        def __init__(self, ctx: commands.Context, *, timeout=300):
+            super().__init__(timeout=timeout)
+            self.ctx = ctx
+
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji=loopem)
+        async def loop(self,interaction:discord.Interaction,button:discord.ui.Button):
+            self.ctx.voice_state.loop = not self.ctx.voice_state.loop
+            await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
+
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="<:sf_shuffle:1262658183869235283>")
+        async def shuffle(self,interaction:discord.Interaction,button:discord.ui.Button):
+            self.ctx.voice_state.songs.shuffle()
+            await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
+
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji=playem)
+        async def play(self,interaction:discord.Interaction,button:discord.ui.Button):
+            if self.ctx.voice_state.is_playing and self.ctx.voice_state.voice.is_playing():
+                self.ctx.voice_state.voice.pause()
+            else:
+                self.ctx.voice_state.voice.resume()
+            await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
+
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="<:sf_next:1262658298730123324>")
+        async def next(self,interaction:discord.Interaction,button:discord.ui.Button):
+            self.ctx.voice_state.skip()
+            await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
+
+    return PlayerButtons(ctx)
 
 class VoiceState:
     def __init__(self, bot: commands.Bot, ctx: commands.Context):
         self.bot = bot
         self._ctx = ctx
 
+        self.controlmsg = None
         self.current = None
         self.voice = None
         self.next = asyncio.Event()
@@ -315,12 +348,16 @@ class VoiceState:
                 async with timeout(180):  # 3 minutes
                     self.current = await self.songs.get()
             except asyncio.TimeoutError:
+                if self.controlmsg != None:
+                    await self.controlmsg.edit(view=None)
                 self.bot.loop.create_task(self.stop())
                 return
 
             self.current.source.volume = self._volume
-            self.voice.play(discord.FFmpegPCMAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
-            await self.current.source.channel.send(embed=self.current.create_embed())
+            self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
+            if self.controlmsg != None:
+                await self.controlmsg.edit(view=None)
+            self.controlmsg = await self.current.source.channel.send(embed=self.current.create_embed(),view=buttonfactory(self._ctx))
 
             await self.next.wait()
 

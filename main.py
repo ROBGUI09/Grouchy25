@@ -13,7 +13,7 @@ import voice
 import logging
 #import discord_logging
 #import speech
-import mod
+import rep, dota
 import requests
 import roulette
 from dotenv import load_dotenv
@@ -97,12 +97,21 @@ async def info(ctx):
 @bot.command()
 async def help(ctx):
 	embed=discord.Embed(title="Помощь по командам", description="Мой префикс: `s!`",colour=botcolour) #, `s!monika`, `s!yuri`, `s!natsuki`, `s!sayori`
-	embed.add_field(name="Мои команды", value="`s!info`, `s!help`, `s!hentai`, `s!ping`, `s!donate`, `s!hello`, `s!howru`, `s!8ball`, `s!weather`", inline=False)
+	embed.add_field(name="Мои команды", value="`s!info`, `s!help`, `s!donate`, `s!8ball`, `s!weather`", inline=False)
 	embed.add_field(name="Музыка", value="`s!playlist`, `s!join`, `s!summon`, `s!leave`, `s!volume`, `s!now`, `s!pause`, `s!resume`, `s!stop`, `s!skip`, `s!queue`, `s!shuffle`, `s!remove`, `s!loop`, `s!play`", inline=False)
-	embed.add_field(name="Reaction Roles", value="`s!rr-new`, `s!rr-abort`, `s!rr-edit`, `s!rm-embed`", inline=False)
+	embed.add_field(name="Утилиты", value="`s!ahelp`")
+	embed.set_footer(icon_url=logo, text=botname)
+	await ctx.message.reply(embed=embed)
+
+@bot.command()
+async def ahelp(ctx):
+	embed=discord.Embed(title="Помощь по админ командам", description="Мой префикс: `s!`",colour=botcolour)
+	embed.add_field(name="?",value="`s!ping`", inline=False)
+	embed.add_field(name="ReactionRoles",value="`s!rr-new`, `s!rr-abort`, `s!rr-edit`, `s!rm-embed`", inline=False)
 	embed.add_field(name="Приватные войсы", value="`s!pv-setup` (прописывать владельцу сервера), `s!pv-limit`, `s!pv-lock`, `s!pv-unlock`, `s!pv-allow`, `s!pv-deny`, `s!pv-limit`, `s!pv-name`, `s!pv-claim`", inline=False)
 	embed.set_footer(icon_url=logo, text=botname)
 	await ctx.message.reply(embed=embed)
+
 	
 @bot.command()
 async def ping(ctx):
@@ -110,15 +119,15 @@ async def ping(ctx):
 	
 @bot.command()
 async def donate(ctx):
-	await ctx.message.reply("Вы можете безвозмездно нам задонатить по этому адресу: <https://www.donationalerts.com/r/robert300> :3")
+	await ctx.message.reply("Вы можете безвозмездно нам задонатить по этому адресу: <https://www.donationalerts.com/r/robert300>")
 	
-@bot.command()
-async def hello(ctx):
-	await ctx.message.reply(random.choice(hellotexts))
+#@bot.command()
+#async def hello(ctx):
+#	await ctx.message.reply(random.choice(hellotexts))
 	
-@bot.command()
-async def howru(ctx):
-	await ctx.message.reply(random.choice(howrutexts))
+#@bot.command()
+#async def howru(ctx):
+#	await ctx.message.reply(random.choice(howrutexts))
 	
 @bot.command(name="8ball")
 async def ball(ctx, *arg):
@@ -803,9 +812,11 @@ async def neko(ctx):
 async def setup_cogs():
 	await bot.add_cog(music.Music(bot))
 	await bot.add_cog(voice.Voice(bot))
+	await bot.add_cog(rep.ReputationCog(bot))
+	await bot.add_cog(dota.DotaInfo(bot))
 #	await bot.add_cog(speech.Speech(bot))
 	#bot.add_cog(icon.ServerIcon(bot))
-	mod.setup(bot)
+#	mod.setup(bot)
 	await bot.add_cog(roulette.Game(bot))
 	
 loop = asyncio.get_event_loop()
