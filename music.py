@@ -116,6 +116,26 @@ class YTDLSource:
 
         return cls(ctx, data=info)
 
+    @classmethod
+    async def _search(cls, search: str, loop: asyncio.BaseEventLoop = None):
+        loop = loop or asyncio.get_event_loop()
+
+        partial = functools.partial(cls.ytdl.extract_info, search, download=False)
+        data = await loop.run_in_executor(None, partial)
+
+        if data is None:
+            raise YTDLError('По запросу `{}` ничего не найдено.'.format(search))
+
+        if 'entries' not in data:
+            data = {"entries":data}
+
+        res = []
+
+        for process_info in data['entries']:
+            res.append([process_info['title'],process_info['uploader'],process_info['webpage_url']])
+
+        return res
+
     @staticmethod
     def parse_duration(duration: int):
         minutes, seconds = divmod(duration, 60)
@@ -170,14 +190,26 @@ class VKSource:
     @classmethod
     async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
 #        loop = loop or asyncio.get_event_loop()
-        data = vks.method("audio.search", q=search, count=1, auto_complete=1)
+        if search.startswith("audio"):
+            data = vks.method("audio.getById", audios=search.split("audio")[1]).get('response',[])
+        else:
+            data = vks.method("audio.search", q=search, count=1, auto_complete=1).get('response',{}).get('items',[])
+
+        if len(data) == 0:
+            raise VKError('По запросу `{}` ничего не найдено.'.format(search))
+
+        audio = data[0]
+
+        return await cls._parse_audio(ctx, audio)
+
+    @classmethod
+    async def _search(cls, search: str, loop = None):
+        data = vks.method("audio.search", q=search, count=25, auto_complete=1)
 
         if len(data.get("response",{}).get('items',[])) == 0:
             raise VKError('По запросу `{}` ничего не найдено.'.format(search))
 
-        audio = data['response']['items'][0]
-
-        return await cls._parse_audio(ctx, audio)
+        return [[audio['title'],audio['artist'],"audio{}_{}_{}".format(audio['owner_id'],audio['id'],audio['access_key'])] for audio in data['response']['items']]
 
     @classmethod
     async def _parse_audio(cls, ctx: commands.Context, audio: dict):
@@ -240,6 +272,33 @@ class Song:
 
         return embed
 
+def crop(text):
+    return text[:100] if len(text) > 100 else text
+
+class SongPicker(discord.ui.Select):
+    def __init__(self, ctx, provider, results):
+        options=[discord.SelectOption(label=crop(result[0]),description=crop(result[1]),value=result[2]) for result in results]
+        super().__init__(placeholder="только не баратрума, ну пожалуйста",max_values=1,min_values=1,options=options)
+        self._ctx = ctx
+        self._provider = provider
+
+    async def callback(self, interaction: discord.Interaction):
+        ctx = self._ctx
+        provider = self._provider
+        try:
+            source = await provider.create_source(ctx, self.values[0])
+        except (YTDLError, VKError) as e:
+            await ctx.send('Во время обработки запроса произошла ошибка: {}'.format(str(e)))
+        else:
+            song = Song(source)
+
+            await ctx.voice_state.songs.put(song)
+            await interaction.response.edit_message(content='Добавлено в очередь: {}'.format(str(source)),view=None)
+
+class SongPickerView(discord.ui.View):
+    def __init__(self, ctx,provider,results, *, timeout = 180):
+        super().__init__(timeout=timeout)
+        self.add_item(SongPicker(ctx,provider,results))
 
 class SongQueue(asyncio.Queue):
     def __getitem__(self, item):
@@ -262,9 +321,10 @@ class SongQueue(asyncio.Queue):
 
     def remove(self, index: int):
         del self._queue[index]
+
 def buttonfactory(ctx):
-    loopem = "<:sf_repeat_all:1262658054642602036>" if ctx.voice_state.loop else "<:sf_noloop:1262658351892795482>"
-    playem = "<:sf_pause:1262657998879195157>" if ctx.voice_state.voice.is_paused() else "<:sf_play:1262657939823530004>"
+    loopem = "🔂" if ctx.voice_state.loop else "⏹"
+    playem = "⏸" if ctx.voice_state.voice.is_paused() else "▶"
 
     class PlayerButtons(discord.ui.View):
         def __init__(self, ctx: commands.Context, *, timeout=300):
@@ -276,7 +336,7 @@ def buttonfactory(ctx):
             self.ctx.voice_state.loop = not self.ctx.voice_state.loop
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
 
-        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="<:sf_shuffle:1262658183869235283>")
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="🔀")
         async def shuffle(self,interaction:discord.Interaction,button:discord.ui.Button):
             self.ctx.voice_state.songs.shuffle()
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
@@ -289,7 +349,7 @@ def buttonfactory(ctx):
                 self.ctx.voice_state.voice.resume()
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
 
-        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="<:sf_next:1262658298730123324>")
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="⏩")
         async def next(self,interaction:discord.Interaction,button:discord.ui.Button):
             self.ctx.voice_state.skip()
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
@@ -354,7 +414,8 @@ class VoiceState:
                 return
 
             self.current.source.volume = self._volume
-            self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
+            while self.loop:
+                self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.controlmsg = await self.current.source.channel.send(embed=self.current.create_embed(),view=buttonfactory(self._ctx))
@@ -483,6 +544,7 @@ class Music(commands.Cog):
             ctx.voice_state.voice.pause()
             await ctx.message.add_reaction('⏯')
 
+
     @commands.command(name='resume')
     async def _resume(self, ctx: commands.Context):
         """Resumes a currently paused song."""
@@ -583,6 +645,23 @@ class Music(commands.Cog):
         # Inverse boolean value to loop and unloop.
         ctx.voice_state.loop = not ctx.voice_state.loop
         await ctx.message.add_reaction('✅')
+
+    @commands.command(name='search')
+    async def _search(self, ctx: commands.Context, *, search: str):
+        """search for songs to add."""
+
+        if not ctx.voice_state.voice:
+            await ctx.invoke(self._join)
+
+        provider = YTDLSource
+
+        if search.startswith("vk+"):
+            provider = VKSource
+            search = search[3:]
+
+        async with ctx.typing():
+            results = await provider._search(search)
+            await ctx.send("у тебя три минуты",view=SongPickerView(ctx,provider,results))
 
     @commands.command(name='play')
     async def _play(self, ctx: commands.Context, *, search: str):
