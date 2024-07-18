@@ -29,7 +29,10 @@ class VkAndroidApi(object):
 
     def __init__(self, login = None, password = None, token = None, secret = None, v=5.95):
         self.v = v
-        self.device_id = "".join( random.choice(string.ascii_lowercase + string.digits) for i in range(16))
+        self.device_id = "".join(
+            random.choice(string.ascii_lowercase + string.digits)
+            for _ in range(16)
+        )
         if token is not None and secret is not None:
             self.token = token
             self.secret = secret
