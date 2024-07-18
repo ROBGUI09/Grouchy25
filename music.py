@@ -76,7 +76,7 @@ FFMPEG_OPTIONS = {
         self.stream_url = data.get('url')
 
     def __str__(self):
-        return '**{0.title}** от **{0.uploader}**'.format(self)
+        return f'**{self.title}** от **{self.uploader}**'
 
     @classmethod
     async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
@@ -86,7 +86,7 @@ FFMPEG_OPTIONS = {
         data = await loop.run_in_executor(None, partial)
 
         if data is None:
-            raise YTDLError('По запросу `{}` ничего не найдено.'.format(search))
+            raise YTDLError(f'По запросу `{search}` ничего не найдено.'
 
         if 'entries' not in data:
             process_info = data
@@ -98,14 +98,14 @@ FFMPEG_OPTIONS = {
                     break
 
             if process_info is None:
-                raise YTDLError('По запросу `{}` ничего не найдено.'.format(search))
+                raise YTDLError(f'По запросу `{search}` ничего не найдено.'
 
         webpage_url = process_info['webpage_url']
         partial = functools.partial(cls.ytdl.extract_info, webpage_url, download=False)
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:
-            raise YTDLError('Не удалось разобрать страницу `{}`'.format(webpage_url))
+            raise YTDLError(f'Не удалось разобрать страницу `{webpage_url}`')
 
         if 'entries' not in processed_info:
             info = processed_info
@@ -115,7 +115,7 @@ FFMPEG_OPTIONS = {
                 try:
                     info = processed_info['entries'].pop(0)
                 except IndexError:
-                    raise YTDLError('Запрос `{}` ничего не нашел.'.format(webpage_url))
+                    raise YTDLError(f'Запрос `{webpage_url}` ничего не нашел.')
 
         return cls(ctx, info)
 
@@ -126,7 +126,7 @@ FFMPEG_OPTIONS = {
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:
-            raise YTDLError('Не удалось разобрать страницу `{}`'.format(webpage_url))
+            raise YTDLError(f'Не удалось разобрать страницу `{webpage_url}`')
 
         if 'entries' not in processed_info:
             info = processed_info
@@ -136,7 +136,7 @@ FFMPEG_OPTIONS = {
                 try:
                     info = processed_info['entries'].pop(0)
                 except IndexError:
-                    raise YTDLError('Запрос `{}` ничего не нашел.'.format(webpage_url))
+                    raise YTDLError(f'Запрос `{webpage_url}` ничего не нашел.')
 
         return info['url']
 
@@ -148,7 +148,7 @@ FFMPEG_OPTIONS = {
         data = await loop.run_in_executor(None, partial)
 
         if data is None:
-            raise YTDLError('По запросу `{}` ничего не найдено.'.format(search))
+            raise YTDLError(f'По запросу `{search}` ничего не найдено.')
 
         if 'entries' not in data:
             data = {"entries":data}
@@ -168,13 +168,13 @@ FFMPEG_OPTIONS = {
 
         duration = []
         if days > 0:
-            duration.append('{} days'.format(days))
+            duration.append(f'{days} days')
         if hours > 0:
-            duration.append('{} hours'.format(hours))
+            duration.append(f'{hours} hours')
         if minutes > 0:
-            duration.append('{} minutes'.format(minutes))
+            duration.append(f'{minutes} minutes')
         if seconds > 0:
-            duration.append('{} seconds'.format(seconds))
+            duration.append(f'{seconds} seconds')
 
         return ', '.join(duration)
 
@@ -209,7 +209,7 @@ class VKSource:
         self.stream_url = data.get('url')
 
     def __str__(self):
-        return '**{0.title}** от **{0.uploader}**'.format(self)
+        return f'**{self.title}** от **{self.uploader}**'
 
     @classmethod
     async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
@@ -235,7 +235,7 @@ class VKSource:
         data = vks.method("audio.search", q=search, count=25, auto_complete=1)
 
         if len(data.get("response",{}).get('items',[])) == 0:
-            raise VKError('По запросу `{}` ничего не найдено.'.format(search))
+            raise VKError(f'По запросу `{search}` ничего не найдено.')
 
         return [[audio['title'],audio['artist'],"audio{}_{}_{}".format(audio['owner_id'],audio['id'],audio['access_key'])] for audio in data['response']['items']]
 
@@ -249,7 +249,9 @@ class VKSource:
             'uploader_url':"https://vk.com/music/artist/"+audio['main_artists'][0]['domain'] if 'main_artists' in audio.keys() else "https://youtu.be/f-tLr7vONmc",
             'upload_date': audio['date'],
             'title': audio['title'],
-            'thumbnail': audio['thumb']["photo_{}".format(audio['thumb']['width'])] if 'thumb' in audio.keys() else "",
+            'thumbnail': audio.get('thumb',{}).get(
+              "photo_{}".format(audio.get('thumb',{}).get('width',"300")
+            ),
             'description':"",
             'duration':audio['duration'],
             'tags':'',
@@ -270,13 +272,13 @@ class VKSource:
 
         duration = []
         if days > 0:
-            duration.append('{} days'.format(days))
+            duration.append(f'{days} days')
         if hours > 0:
-            duration.append('{} hours'.format(hours))
+            duration.append(f'{hours} hours')
         if minutes > 0:
-            duration.append('{} minutes'.format(minutes))
+            duration.append(f'{minutes} minutes')
         if seconds > 0:
-            duration.append('{} seconds'.format(seconds))
+            duration.append(f'{seconds} seconds')
 
         return ', '.join(duration)
 
@@ -290,12 +292,12 @@ class Song:
 
     def create_embed(self):
         embed = (discord.Embed(title='Сейчас играет',
-                               description='```css\n{0.source.title}\n```'.format(self),
+                               description=f'```css\n{self.source.title}\n```',
                                color=16734003)
                  .add_field(name='Длительность', value=self.source.duration)
                  .add_field(name='Запрошено', value=self.requester.mention)
-                 .add_field(name='Автор', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
-                 .add_field(name='Ссылка', value='[Click]({0.source.url})'.format(self))
+                 .add_field(name='Автор', value=f'[{self.source.uploader}]({self.source.uploader_url})')
+                 .add_field(name='Ссылка', value=f'[Ссылка]({self.source.url})')
                  .set_thumbnail(url=self.source.thumbnail))
 
         return embed
@@ -316,12 +318,12 @@ class SongPicker(discord.ui.Select):
         try:
             source = await provider.create_source(ctx, self.values[0])
         except (YTDLError, VKError) as e:
-            await ctx.send('Во время обработки запроса произошла ошибка: {}'.format(str(e)))
+            await ctx.send(f'Во время обработки запроса произошла ошибка: {e}')
         else:
             song = Song(source)
 
             await ctx.voice_state.songs.put(song)
-            await interaction.response.edit_message(content='Добавлено в очередь: {}'.format(str(source)),view=None)
+            await interaction.response.edit_message(content=f'Добавлено в очередь: {source}',view=None)
 
 class SongPickerView(discord.ui.View):
     def __init__(self, ctx,provider,results, *, timeout = 180):
@@ -401,7 +403,7 @@ class VoiceState:
         self.voice = None
         self.next = asyncio.Event()
         self.songs = SongQueue()
-        self.diepls = False
+        self.terminate = False
 
         self.loop = "off"
         self.skip_votes = set()
@@ -449,7 +451,7 @@ class VoiceState:
             if self.loop == "all":
                 await self.songs.put(self.current)
 
-            self.diepls = False
+            self.terminate = False
 
             await self.next.wait()
 
@@ -464,7 +466,7 @@ class VoiceState:
 
         if self.is_playing:
             self.voice.stop()
-            self.diepls = True
+            self.terminate = True
 
     async def stop(self):
         self.songs.clear()
@@ -475,7 +477,7 @@ class VoiceState:
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.voice = None
-            self.diepls = True
+            self.terminate = True
 
 
 class Music(commands.Cog):
@@ -505,7 +507,7 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('An error occurred: {}'.format(str(error)))
+        await ctx.send('An error occurred: {error}')
         traceback.print_exception(error)
 
     @commands.command(name='join', invoke_without_subcommand=True)
@@ -552,19 +554,6 @@ class Music(commands.Cog):
 
         await ctx.voice_state.stop()
         del self.voice_states[ctx.guild.id]
-
-    @commands.command(name='volume')
-    async def _volume(self, ctx: commands.Context, *, volume: int):
-        """Sets the volume of the player."""
-
-        if not ctx.voice_state.is_playing:
-            return await ctx.send('Nothing being played at the moment.')
-
-        if 0 > volume > 100:
-            return await ctx.send('Volume must be between 0 and 100')
-
-        ctx.voice_state.volume = volume / 100
-        await ctx.send('Громкость проигрывателя установлена на `{}%`.'.format(volume))
 
     @commands.command(name='now', aliases=['current', 'playing'])
     async def _now(self, ctx: commands.Context):
@@ -623,7 +612,7 @@ class Music(commands.Cog):
                 await ctx.message.add_reaction('⏭')
                 ctx.voice_state.skip()
             else:
-                await ctx.send('Голос за пропуск добавлен, сейчас **{}/3** голосов.'.format(total_votes))
+                await ctx.send(f'Голос за пропуск добавлен, сейчас **{total_votes}/3** голосов.')
 
         else:
             await ctx.send('Вы уже голосовали за пропуск этой песни.')
@@ -647,8 +636,8 @@ class Music(commands.Cog):
         for i, song in enumerate(ctx.voice_state.songs[start:end], start=start):
             queue += '`{0}.` [**{1.source.title}**]({1.source.url})\n'.format(i + 1, song)
 
-        embed = (discord.Embed(description='**{} tracks:**\n\n{}'.format(len(ctx.voice_state.songs), queue))
-                 .set_footer(text='Просматриваем страницу {}/{}'.format(page, pages)))
+        embed = (discord.Embed(description=f'**{len(ctx.voice_state.songs)} tracks:**\n\n{queue}')
+                 .set_footer(text=f'Просматриваем страницу {page}/{pages}'))
         await ctx.send(embed=embed)
 
     @commands.command(name='shuffle')
@@ -729,12 +718,12 @@ class Music(commands.Cog):
             try:
                 source = await provider.create_source(ctx, search, loop=self.bot.loop)
             except (YTDLError, VKError) as e:
-                await ctx.send('Во время обработки запроса произошла ошибка: {}'.format(str(e)))
+                await ctx.send(f'Во время обработки запроса произошла ошибка: {e}')
             else:
                 song = Song(source)
 
                 await ctx.voice_state.songs.put(song)
-                await ctx.send('Добавлено в очередь: {}'.format(str(source)))
+                await ctx.send(f'Добавлено в очередь: {source}')
 
     @commands.command(name='playlist')
     async def _playlist(self, ctx: commands.Context, *, url: str):
@@ -760,7 +749,7 @@ class Music(commands.Cog):
                 try:
                     source = await VKSource._parse_audio(ctx,audio)
                 except VKError as e:
-                    await ctx.send('Во время обработки запроса произошла ошибка: {}'.format(str(e)))
+                    await ctx.send(f'Во время обработки запроса произошла ошибка: {e}')
                 else:
                     if source == None:
                         dead = True
@@ -770,7 +759,7 @@ class Music(commands.Cog):
                     await ctx.voice_state.songs.put(song)
 
             warn = "\n⚠️ Один (или несколько) треков в плейлисте (альбоме) были отозваны или заблокированы, они были автоматически пропущены при импорте." if dead else ""
-            await ctx.send(('Добавлено в очередь: **+{}**'.format(len(songs)))+warn)
+            await ctx.send((f'Добавлено в очередь: **+{len(songs)}**{warn}')
 
     @_join.before_invoke
     @_play.before_invoke
