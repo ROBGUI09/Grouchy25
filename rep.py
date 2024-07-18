@@ -250,7 +250,7 @@ class ReputationCog(commands.Cog):
             return
 
         owner = ctx.guild.owner
-        embed = discord.Embed(title=f"Репорт", color=discord.Color.red())
+        embed = discord.Embed(title="Репорт", color=discord.Color.red())
         embed.add_field(name="От", value=ctx.author.mention, inline=False)
         embed.add_field(name="Зарепорченный пользователь", value=member.mention, inline=False)
         embed.add_field(name="Причина", value=reason, inline=False)
