@@ -1,7 +1,7 @@
 import sqlite3
 import time
 
-db = sqlite3.connect('grouchy.db')
+db = sqlite3.connect('dbs/grouchy.db')
 cur = db.cursor()
     
 def check_for_vip(guild_id):

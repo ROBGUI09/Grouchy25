@@ -5,13 +5,41 @@ import traceback
 import sqlite3
 import validators
 
+def create_db():
+    conn = sqlite3.connect('dbs/voice.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS "guild" (
+        `guildID`       INTEGER,
+        `ownerID`       INTEGER,
+        `voiceChannelID`        INTEGER,
+        `voiceCategoryID`       INTEGER
+);''')
+    c.execute('''CREATE TABLE `guildSettings` (
+        `guildID`       INTEGER,
+        `channelName`   TEXT,
+        `channelLimit`  INTEGER
+);''')
+    c.execute('''CREATE TABLE `userSettings` (
+        `userID`        INTEGER,
+        `channelName`   TEXT,
+        `channelLimit`  INTEGER
+);''')
+    c.execute('''CREATE TABLE `voiceChannel` (
+        `userID`        INTEGER,
+        `voiceID`       INTEGER
+);''')
+    conn.commit()
+    conn.close()
+
+create_db()
+
 class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         guildID = member.guild.id
         c.execute("SELECT voiceChannelID FROM guild WHERE guildID = ?", (guildID,))
@@ -75,7 +103,7 @@ class Voice(commands.Cog):
     @commands.command(name="pv-setup")
     @commands.has_permissions(administrator=True)
     async def setup(self, ctx):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         guildID = ctx.guild.id
         id = ctx.author.id
@@ -115,7 +143,7 @@ class Voice(commands.Cog):
     @commands.command(name="pv-setlimit")
     @commands.has_permissions(administrator=True)
     async def setlimit(self, ctx, num):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         if True:
             c.execute("SELECT * FROM guildSettings WHERE guildID = ?", (ctx.guild.id,))
@@ -136,7 +164,7 @@ class Voice(commands.Cog):
 
     @commands.command(name="pv-lock")
     async def lock(self, ctx):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         id = ctx.author.id
         c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,))
@@ -154,7 +182,7 @@ class Voice(commands.Cog):
 
     @commands.command(name="pv-unlock")
     async def unlock(self, ctx):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         id = ctx.author.id
         c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,))
@@ -172,7 +200,7 @@ class Voice(commands.Cog):
 
     @commands.command(name="pv-permit",aliases=["pv-allow"])
     async def permit(self, ctx, member : discord.Member):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         id = ctx.author.id
         c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,))
@@ -189,7 +217,7 @@ class Voice(commands.Cog):
 
     @commands.command(name="pv-reject",aliases=["pv-deny"])
     async def reject(self, ctx, member : discord.Member):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         id = ctx.author.id
         guildID = ctx.guild.id
@@ -215,7 +243,7 @@ class Voice(commands.Cog):
 
     @commands.command(name="pv-limit")
     async def limit(self, ctx, limit):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         id = ctx.author.id
         c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,))
@@ -239,7 +267,7 @@ class Voice(commands.Cog):
 
     @commands.command(name="pv-name")
     async def name(self, ctx,*, name):
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         id = ctx.author.id
         c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,))
@@ -263,7 +291,7 @@ class Voice(commands.Cog):
     @commands.command(name="pv-claim")
     async def claim(self, ctx):
         x = False
-        conn = sqlite3.connect('voice.db')
+        conn = sqlite3.connect('dbs/voice.db')
         c = conn.cursor()
         channel = ctx.author.voice.channel
         if channel == None:

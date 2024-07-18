@@ -2,20 +2,13 @@ import discord
 from discord.ext import commands, tasks
 import random
 from data import *
-from pogoda import get_weather, NotFoundError
-import music
 import os
 import utils, time
 import asyncio
 import database
-import voice
-#import icon
+from cogs import voice, rep, dota, roulette
 import logging
-#import discord_logging
-#import speech
-import rep, dota
 import requests
-import roulette
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,8 +31,6 @@ logger.addHandler(handlers)
 token = os.environ.get("BOT_TOKEN")
 
 from discord.gateway import DiscordWebSocket
-
-
 class MyDiscordWebSocket(DiscordWebSocket):
 
     async def send_as_json(self, data):
@@ -52,17 +43,12 @@ class MyDiscordWebSocket(DiscordWebSocket):
 
 DiscordWebSocket.from_client = MyDiscordWebSocket.from_client
 
-prefix = "s!"
-
 prefixes = ["s!"]
 bot = commands.Bot(command_prefix=prefixes, intents=intents)
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
 db = database.Database("reactionlight.db")
-botcolour = 16734003
-botname = "Зверя нет сильней китайца, Стая блох, соси нам яйца"
-logo = "https://i.pinimg.com/originals/f2/5f/3d/f25f3d95d5f15a1f28b89564ee8ad109.gif"
 
 def system_notification(data):
 	print(data)

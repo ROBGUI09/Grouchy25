@@ -57,3 +57,8 @@ hellotexts=["Здарова","Привет","Привет, как дела?","З
         "Hallo",
         "Hei",
         "Hujambo"]
+
+botcolour = 16734003
+botname = "Зверя нет сильней китайца, Стая блох, соси нам яйца"
+logo = "https://i.pinimg.com/originals/f2/5f/3d/f25f3d95d5f15a1f28b89564ee8ad109.gif"
+
