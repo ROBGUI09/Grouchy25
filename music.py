@@ -323,7 +323,7 @@ class SongQueue(asyncio.Queue):
         del self._queue[index]
 
 def buttonfactory(ctx):
-    loopem = "🔂" if ctx.voice_state.loop else "⏹"
+    loopem = "🔂" if ctx.voice_state.loop == "one" else "➡️" if ctx.voice_state.loop == "off" else "🔁"
     playem = "⏸" if ctx.voice_state.voice.is_paused() else "▶"
 
     class PlayerButtons(discord.ui.View):
@@ -333,7 +333,12 @@ def buttonfactory(ctx):
 
         @discord.ui.button(style=discord.ButtonStyle.gray,emoji=loopem)
         async def loop(self,interaction:discord.Interaction,button:discord.ui.Button):
-            self.ctx.voice_state.loop = not self.ctx.voice_state.loop
+            if self.ctx.voice_state.loop == "off":
+                self.ctx.voice_state.loop = "all"
+            if self.ctx.voice_state.loop == "all":
+                self.ctx.voice_state.loop = "one"
+            if self.ctx.voice_state.loop == "one":
+                self.ctx.voice_state.loop = "off"
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
 
         @discord.ui.button(style=discord.ButtonStyle.gray,emoji="🔀")
@@ -343,13 +348,13 @@ def buttonfactory(ctx):
 
         @discord.ui.button(style=discord.ButtonStyle.gray,emoji=playem)
         async def play(self,interaction:discord.Interaction,button:discord.ui.Button):
-            if self.ctx.voice_state.is_playing and self.ctx.voice_state.voice.is_playing():
+            if self.ctx.voice_state.voice.is_playing():
                 self.ctx.voice_state.voice.pause()
             else:
                 self.ctx.voice_state.voice.resume()
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
 
-        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="⏩")
+        @discord.ui.button(style=discord.ButtonStyle.gray,emoji="⏭️")
         async def next(self,interaction:discord.Interaction,button:discord.ui.Button):
             self.ctx.voice_state.skip()
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
@@ -367,7 +372,7 @@ class VoiceState:
         self.next = asyncio.Event()
         self.songs = SongQueue()
 
-        self._loop = False
+        self._loop = "off"
         self._volume = 0.5
         self.skip_votes = set()
 
@@ -381,7 +386,7 @@ class VoiceState:
         return self._loop
 
     @loop.setter
-    def loop(self, value: bool):
+    def loop(self, value: str):
         self._loop = value
 
     @property
@@ -414,8 +419,11 @@ class VoiceState:
                 return
 
             self.current.source.volume = self._volume
-            while self.loop:
+            self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
+            while self.loop == "one":
                 self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
+            if self.loop == "all":
+                self.songs.put(self.current)
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.controlmsg = await self.current.source.channel.send(embed=self.current.create_embed(),view=buttonfactory(self._ctx))
@@ -439,6 +447,8 @@ class VoiceState:
 
         if self.voice:
             await self.voice.disconnect()
+            if self.controlmsg != None:
+                await self.controlmsg.edit(view=None)
             self.voice = None
 
 
@@ -634,7 +644,7 @@ class Music(commands.Cog):
         await ctx.message.add_reaction('✅')
 
     @commands.command(name='loop')
-    async def _loop(self, ctx: commands.Context):
+    async def _loop(self, ctx: commands.Context, mode: str):
         """Loops the currently playing song.
         Invoke this command again to unloop the song.
         """
@@ -643,8 +653,11 @@ class Music(commands.Cog):
             return await ctx.send('Ничего не играет в данный момент.')
 
         # Inverse boolean value to loop and unloop.
-        ctx.voice_state.loop = not ctx.voice_state.loop
-        await ctx.message.add_reaction('✅')
+        if mode in ["off","one","all"]:
+            ctx.voice_state.loop = mode
+            await ctx.message.add_reaction('✅')
+        else:
+            await ctx.message.add_reaction('❌')
 
     @commands.command(name='search')
     async def _search(self, ctx: commands.Context, *, search: str):
