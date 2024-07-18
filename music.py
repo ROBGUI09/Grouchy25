@@ -423,9 +423,7 @@ class VoiceState:
         return self.voice and self.current
 
     async def getnext(self):
-        if self.loop == "one":
-            return self.current
-        return await self.songs.get()
+        return self.current if self.loop == "one" else await self.songs.get()
 
     async def audio_player_task(self):
         while True:
