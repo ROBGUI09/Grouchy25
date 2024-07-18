@@ -420,9 +420,7 @@ class ReputationCog(commands.Cog):
             "SELECT positive FROM reputation WHERE user_id = ?", (user_id,)
         )
         positive = self.cursor.fetchone()
-        if positive is None:
-            return "[]"
-        return positive[0]
+        return "[]" if positive is None else positive[0]
 
     def get_negative(self, user_id):
         """
