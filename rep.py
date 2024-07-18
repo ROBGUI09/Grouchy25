@@ -99,7 +99,7 @@ def str_time_to_seconds(str_time, language='ru'):
             p = 1
         else:
             p = 2
-        return str(n) + ' ' + days[p]
+        return f'{str(n)} {days[p]}'
 
     counter_in_str = ""
     for i in timestr_to_dict(str_time).items():
