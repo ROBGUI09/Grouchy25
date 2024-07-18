@@ -96,10 +96,29 @@ class YTDLSource:
             if process_info is None:
                 raise YTDLError('По запросу `{}` ничего не найдено.'.format(search))
 
-        return cls(ctx, process_info)
+        webpage_url = process_info['webpage_url']
+        partial = functools.partial(cls.ytdl.extract_info, webpage_url, download=False)
+        processed_info = await loop.run_in_executor(None, partial)
+
+        if processed_info is None:
+            raise YTDLError('Не удалось разобрать страницу `{}`'.format(webpage_url))
+
+        if 'entries' not in processed_info:
+            info = processed_info
+        else:
+            info = None
+            while info is None:
+                try:
+                    info = processed_info['entries'].pop(0)
+                except IndexError:
+                    raise YTDLError('Запрос `{}` ничего не нашел.'.format(webpage_url))
+
+        return cls(ctx, info)
 
     async def get_stream(source, loop: asyncio.BaseEventLoop = None):
-        partial = functools.partial(cls.ytdl.extract_info, source.url, download=False)
+        loop = loop or asyncio.get_event_loop()
+
+        partial = functools.partial(source.ytdl.extract_info, source.url, download=False)
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:
@@ -384,6 +403,13 @@ class VoiceState:
         self.skip_votes = set()
 
         self.audio_player = bot.loop.create_task(self.audio_player_task())
+        self.audio_player.add_done_callback(self.check_exceptions)
+
+    def check_exceptions(self, task):
+        try:
+            _ = task.result()
+        except Exception as e:
+            traceback.print_exception(e)
 
     def __del__(self):
         self.audio_player.cancel()
@@ -414,7 +440,7 @@ class VoiceState:
                 self.bot.loop.create_task(self.stop())
                 return
 
-            self.voice.play(discord.FFmpegOpusAudio(await self.current.source.get_stream(), **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
+            self.voice.play(discord.FFmpegOpusAudio(await self.current.source.get_stream(loop=self.bot.loop), **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.controlmsg = await self.current.source.channel.send(embed=self.current.create_embed(),view=buttonfactory(self._ctx))
@@ -440,6 +466,7 @@ class VoiceState:
 
     async def stop(self):
         self.songs.clear()
+        self.loop = "off"
 
         if self.voice:
             await self.voice.disconnect()
