@@ -430,9 +430,7 @@ class ReputationCog(commands.Cog):
             "SELECT negative FROM reputation WHERE user_id = ?", (user_id,)
         )
         negative = self.cursor.fetchone()
-        if negative is None:
-            return "[]"
-        return negative[0]
+        return "[]" if negative is None else negative[0]
 
     @commands.Cog.listener()
     async def on_message(self, message):
