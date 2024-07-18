@@ -27,15 +27,6 @@ class VoiceError(Exception):
 class YTDLError(Exception):
     pass
 
-class PartialSource:
-    def __init__(self, ctx, provider, backtrace):
-        self.provider = provider
-        self.trace = backtrace
-        self.ctx = ctx
-
-    async def get_stream(self):
-        await self.provider.get_stream(self.ctx, self.trace)
-
 class YTDLSource:
     YTDL_OPTIONS = {
         'format': 'bestaudio/best',
