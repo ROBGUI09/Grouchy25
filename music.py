@@ -46,7 +46,11 @@ class YTDLSource:
 
     FFMPEG_OPTIONS = {
         'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        'options': '-af "bass=g=-10" -vn',
+audio_filter = 'bass=g=-10'  # Значение по умолчанию, может быть настроено
+FFMPEG_OPTIONS = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'options': f'-af "{audio_filter}" -vn',
+}
     }
 
     ytdl = youtube_dl.YoutubeDL(YTDL_OPTIONS)
