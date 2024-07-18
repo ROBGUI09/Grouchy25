@@ -27,6 +27,14 @@ class VoiceError(Exception):
 class YTDLError(Exception):
     pass
 
+class PartialSource:
+    def __init__(self, ctx, provider, backtrace):
+        self.provider = provider
+        self.trace = backtrace
+        self.ctx = ctx
+
+    async def get_stream(self):
+        await self.provider.get_stream(self.ctx, self.trace)
 
 class YTDLSource:
     YTDL_OPTIONS = {
@@ -97,8 +105,10 @@ class YTDLSource:
             if process_info is None:
                 raise YTDLError('По запросу `{}` ничего не найдено.'.format(search))
 
-        webpage_url = process_info['webpage_url']
-        partial = functools.partial(cls.ytdl.extract_info, webpage_url, download=False)
+        return cls(ctx, process_info)
+
+    async def get_stream(source, loop: asyncio.BaseEventLoop = None):
+        partial = functools.partial(cls.ytdl.extract_info, source.url, download=False)
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:
@@ -114,7 +124,7 @@ class YTDLSource:
                 except IndexError:
                     raise YTDLError('Запрос `{}` ничего не нашел.'.format(webpage_url))
 
-        return cls(ctx, data=info)
+        return info['url']
 
     @classmethod
     async def _search(cls, search: str, loop: asyncio.BaseEventLoop = None):
@@ -201,6 +211,10 @@ class VKSource:
         audio = data[0]
 
         return await cls._parse_audio(ctx, audio)
+
+    async def get_stream(self, loop: asyncio.BaseEventLoop = None):
+#        loop = loop or asyncio.get_event_loop()
+        return self.stream_url
 
     @classmethod
     async def _search(cls, search: str, loop = None):
@@ -409,7 +423,7 @@ class VoiceState:
                 self.bot.loop.create_task(self.stop())
                 return
 
-            self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
+            self.voice.play(discord.FFmpegOpusAudio(await self.current.source.get_stream(), **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.controlmsg = await self.current.source.channel.send(embed=self.current.create_embed(),view=buttonfactory(self._ctx))
