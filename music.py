@@ -507,7 +507,7 @@ class Music(commands.Cog):
         ctx.voice_state = self.get_voice_state(ctx)
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        await ctx.send('An error occurred: {error}')
+        await ctx.send(f'An error occurred: {error}')
         traceback.print_exception(error)
 
     @commands.command(name='join', invoke_without_subcommand=True)
