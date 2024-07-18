@@ -220,7 +220,7 @@ class VKSource:
             data = vks.method("audio.search", q=search, count=1, auto_complete=1).get('response',{}).get('items',[])
 
         if len(data) == 0:
-            raise VKError('По запросу `{}` ничего не найдено.'.format(search))
+            raise VKError(f'По запросу `{search}` ничего не найдено.')
 
         audio = data[0]
 
