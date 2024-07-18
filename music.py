@@ -335,9 +335,11 @@ def buttonfactory(ctx):
         async def loop(self,interaction:discord.Interaction,button:discord.ui.Button):
             if self.ctx.voice_state.loop == "off":
                 self.ctx.voice_state.loop = "all"
-            if self.ctx.voice_state.loop == "all":
+            elif self.ctx.voice_state.loop == "all":
                 self.ctx.voice_state.loop = "one"
-            if self.ctx.voice_state.loop == "one":
+            elif self.ctx.voice_state.loop == "one":
+                self.ctx.voice_state.loop = "off"
+            else:
                 self.ctx.voice_state.loop = "off"
             await interaction.response.edit_message(embed=self.ctx.voice_state.current.create_embed(),view=buttonfactory(self.ctx))
 
@@ -371,9 +373,9 @@ class VoiceState:
         self.voice = None
         self.next = asyncio.Event()
         self.songs = SongQueue()
+        self.diepls = False
 
-        self._loop = "off"
-        self._volume = 0.5
+        self.loop = "off"
         self.skip_votes = set()
 
         self.audio_player = bot.loop.create_task(self.audio_player_task())
@@ -382,24 +384,13 @@ class VoiceState:
         self.audio_player.cancel()
 
     @property
-    def loop(self):
-        return self._loop
-
-    @loop.setter
-    def loop(self, value: str):
-        self._loop = value
-
-    @property
-    def volume(self):
-        return self._volume
-
-    @volume.setter
-    def volume(self, value: float):
-        self._volume = value
-
-    @property
     def is_playing(self):
         return self.voice and self.current
+
+    async def getnext(self):
+        if self.loop == "one":
+            return self.current
+        return await self.songs.get()
 
     async def audio_player_task(self):
         while True:
@@ -411,22 +402,21 @@ class VoiceState:
             # reasons.
             try:
                 async with timeout(180):  # 3 minutes
-                    self.current = await self.songs.get()
+                    self.current = await self.getnext()
             except asyncio.TimeoutError:
                 if self.controlmsg != None:
                     await self.controlmsg.edit(view=None)
                 self.bot.loop.create_task(self.stop())
                 return
 
-            self.current.source.volume = self._volume
             self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
-            while self.loop == "one":
-                self.voice.play(discord.FFmpegOpusAudio(self.current.source.stream_url, **self.current.source.FFMPEG_OPTIONS), after=self.play_next_song)
-            if self.loop == "all":
-                self.songs.put(self.current)
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.controlmsg = await self.current.source.channel.send(embed=self.current.create_embed(),view=buttonfactory(self._ctx))
+            if self.loop == "all":
+                await self.songs.put(self.current)
+
+            self.diepls = False
 
             await self.next.wait()
 
@@ -441,6 +431,7 @@ class VoiceState:
 
         if self.is_playing:
             self.voice.stop()
+            self.diepls = True
 
     async def stop(self):
         self.songs.clear()
@@ -450,6 +441,7 @@ class VoiceState:
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.voice = None
+            self.diepls = True
 
 
 class Music(commands.Cog):
@@ -544,7 +536,9 @@ class Music(commands.Cog):
     async def _now(self, ctx: commands.Context):
         """Displays the currently playing song."""
 
-        await ctx.send(embed=ctx.voice_state.current.create_embed())
+        if ctx.voice_state.controlmsg:
+            await ctx.voice_state.controlmsg.edit(view=None)
+        ctx.voice_state.controlmsg = await ctx.send(embed=ctx.voice_state.current.create_embed(),view=buttonfactory(ctx))
 
     @commands.command(name='pause')
     async def _pause(self, ctx: commands.Context):
@@ -644,13 +638,16 @@ class Music(commands.Cog):
         await ctx.message.add_reaction('✅')
 
     @commands.command(name='loop')
-    async def _loop(self, ctx: commands.Context, mode: str):
+    async def _loop(self, ctx: commands.Context, mode: str = None):
         """Loops the currently playing song.
         Invoke this command again to unloop the song.
         """
 
         if not ctx.voice_state.is_playing:
             return await ctx.send('Ничего не играет в данный момент.')
+
+        if mode == None:
+            await ctx.send(ctx.voice_state.loop)
 
         # Inverse boolean value to loop and unloop.
         if mode in ["off","one","all"]:
