@@ -54,7 +54,8 @@ DiscordWebSocket.from_client = MyDiscordWebSocket.from_client
 
 prefix = "s!"
 
-bot = commands.Bot(command_prefix=(prefix),intents=intents)
+prefixes = ["s!"]
+bot = commands.Bot(command_prefix=prefixes, intents=intents)
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
 
