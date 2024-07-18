@@ -246,8 +246,7 @@ class ReputationCog(commands.Cog):
     @commands.command()
     async def report(self, ctx, member: discord.Member, *, reason=None):
         if reason is None:
-            await ctx.send("Укажите причину репорта!")
-            return
+            reason = "No reason provided"
 
         owner = ctx.guild.owner
         embed = discord.Embed(title="Репорт", color=discord.Color.red())
