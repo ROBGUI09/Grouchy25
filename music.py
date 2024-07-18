@@ -86,7 +86,7 @@ FFMPEG_OPTIONS = {
         data = await loop.run_in_executor(None, partial)
 
         if data is None:
-            raise YTDLError(f'По запросу `{search}` ничего не найдено.'
+            raise YTDLError(f'По запросу `{search}` ничего не найдено.')
 
         if 'entries' not in data:
             process_info = data
@@ -98,7 +98,7 @@ FFMPEG_OPTIONS = {
                     break
 
             if process_info is None:
-                raise YTDLError(f'По запросу `{search}` ничего не найдено.'
+                raise YTDLError(f'По запросу `{search}` ничего не найдено.')
 
         webpage_url = process_info['webpage_url']
         partial = functools.partial(cls.ytdl.extract_info, webpage_url, download=False)
@@ -759,7 +759,7 @@ class Music(commands.Cog):
                     await ctx.voice_state.songs.put(song)
 
             warn = "\n⚠️ Один (или несколько) треков в плейлисте (альбоме) были отозваны или заблокированы, они были автоматически пропущены при импорте." if dead else ""
-            await ctx.send((f'Добавлено в очередь: **+{len(songs)}**{warn}')
+            await ctx.send(f'Добавлено в очередь: **+{len(songs)}**{warn}')
 
     @_join.before_invoke
     @_play.before_invoke
