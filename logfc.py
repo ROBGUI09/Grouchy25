@@ -1,18 +1,19 @@
-import logging
+import logging as l
 import os
 import inspect
 import traceback
 
 # Configure the logging with a custom format that includes the timestamp
-logging.basicConfig(
+l.basicConfig(
     filename='function_calls.log',
-    level=logging.INFO,
+    level=l.INFO,
     format='%(asctime)s %(levelname)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
+logging = l.getLogger("logfc")
+
 # Global list to store the last 5 tracebacks
-last_5_tracebacks = []
 
 # log function calls
 def logfc(func):
