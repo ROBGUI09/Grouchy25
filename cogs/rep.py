@@ -5,8 +5,9 @@ import json
 import datetime
 import asyncio
 import re
+import data
 
-botcolour = 16734003
+botcolour = data.botcolour
 
 def str_time_to_seconds(str_time, language='ru'):
     if str_time == "": return (None, "вечно")
@@ -113,7 +114,7 @@ def str_time_to_seconds(str_time, language='ru'):
 class ReputationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db = sqlite3.connect('dbs/reputation.db')
+        self.db = sqlite3.connect(os.path.join(data.DATABASES_FOLDER,'reputation.db'))
         self.cursor = self.db.cursor()
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS reputation (
@@ -153,28 +154,29 @@ class ReputationCog(commands.Cog):
             self.cursor.execute("SELECT user_id, type, expires_at FROM punishments WHERE expires_at IS NOT NULL AND expires_at <= ?", (datetime.datetime.now(datetime.timezone.utc).timestamp(),))
             punishments = self.cursor.fetchall()
 
-            for user_id, type, expires_at in punishments:
-                if type == "ban":
-                    try:
-                        member = await self.bot.fetch_user(user_id)
-                        await self.bot.http.unban(self.bot.get_guild(member.guild.id).id, user_id)
-                    except discord.HTTPException:
-                        pass
-                elif type == "mute":
-                    try:
-                        member = await self.bot.fetch_user(user_id)
-                        guild = self.bot.get_guild(member.guild.id)
+            for user_id, puntype, expires_at in punishments:
+                match puntype:
+                    case "ban":
+                        try:
+                            member = await self.bot.fetch_user(user_id)
+                            await self.bot.http.unban(self.bot.get_guild(member.guild.id).id, user_id)
+                        except discord.HTTPException:
+                            pass
+                    case "mute":
+                        try:
+                            member = await self.bot.fetch_user(user_id)
+                            guild = self.bot.get_guild(member.guild.id)
 
-                        await guild.get_member(user_id).edit(mute=False, reason="Срок мута истек")
-                    except discord.HTTPException:
-                        pass
-                elif type == "kick":
-                    try:
-                        member = await self.bot.fetch_user(user_id)
-                        guild = self.bot.get_guild(member.guild.id)
-                        await guild.unban(member, reason="Срок кика истек")
-                    except discord.HTTPException:
-                        pass
+                            await guild.get_member(user_id).edit(mute=False, reason="Срок мута истек")
+                        except discord.HTTPException:
+                            pass
+                    case "kick":
+                        try:
+                            member = await self.bot.fetch_user(user_id)
+                            guild = self.bot.get_guild(member.guild.id)
+                            await guild.unban(member, reason="Срок кика истек")
+                        except discord.HTTPException:
+                            pass
 
                 self.cursor.execute("DELETE FROM punishments WHERE user_id = ? AND type = ?", (user_id, type))
                 self.db.commit()

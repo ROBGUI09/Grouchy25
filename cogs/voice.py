@@ -36,7 +36,7 @@ create_db()
 class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.conn = dbuni('dbs/voice.db')
+        self.conn = dbuni(os.path.join(data.DATABASES_FOLDER,'voice.db'))
         self.conn.connect()
 
     @commands.Cog.listener()
@@ -50,9 +50,7 @@ class Voice(commands.Cog):
         try:
             if after.channel.id == voiceID:
                 cooldown = c.execute("SELECT * FROM voiceChannel WHERE userID = ?", (member.id,)).fetchone()
-                if cooldown is None:
-                    pass
-                else:
+                if cooldown is not None:
                     await member.send("Ты создаёшь каналы слишком быстро, задержись на 15 секунд.")
                     await asyncio.sleep(15)
                 voice = c.execute("SELECT voiceCategoryID FROM guild WHERE guildID = ?", (guildID,)).fetchone()
@@ -60,10 +58,8 @@ class Voice(commands.Cog):
                 guildSetting = c.execute("SELECT channelLimit FROM guildSettings WHERE guildID = ?", (guildID,)).fetchone()
                 if setting is None:
                     name = f"Канал {member.name}'а"
-                    if guildSetting is None:
-                        limit = 0
-                    else:
-                        limit = guildSetting[0]
+                    limit = 0 if guildSetting is None else guildSetting[0]
+
                 else:
                     if guildSetting is None:
                         name = setting[0]
@@ -75,22 +71,22 @@ class Voice(commands.Cog):
                         name = setting[0]
                         limit = setting[1]
                 categoryID = voice[0]
-                id = member.id
+                mid = member.id
                 category = self.bot.get_channel(categoryID)
                 channel2 = await member.guild.create_voice_channel(name,category=category)
                 channelID = channel2.id
                 await member.move_to(channel2)
                 await channel2.set_permissions(self.bot.user, connect=True,read_messages=True)
                 await channel2.edit(name= name, user_limit = limit)
-                c.execute("INSERT INTO voiceChannel VALUES (?, ?)", (id,channelID))
+                c.execute("INSERT INTO voiceChannel VALUES (?, ?)", (mid,channelID))
                 def check(a,b,c):
                     return len(channel2.members) == 0
                 await self.bot.wait_for('voice_state_update', check=check)
                 await channel2.delete()
                 await asyncio.sleep(3)
-                c.execute('DELETE FROM voiceChannel WHERE userID=?', (id,))
-        except:
-            pass
+                c.execute('DELETE FROM voiceChannel WHERE userID=?', (mid,))
+        except Exception as e:
+            traceback.print_exc(e)
 
     @commands.command(name="pv-setup")
     @commands.has_permissions(administrator=True)
@@ -122,22 +118,20 @@ class Voice(commands.Cog):
                     else:
                         c.execute("UPDATE guild SET guildID = ?, ownerID = ?, voiceChannelID = ?, voiceCategoryID = ? WHERE guildID = ?",(guildID,aid,channel.id,new_cat.id, guildID))
                     await ctx.channel.send("**Готово!**")
-                except:
-                    await ctx.channel.send("Вы ввели что-то неправильно.\nПопробуйте заново.")
+                except Exception as e:
+                    await ctx.channel.send(f"Вы ввели что-то неправильно.\nПопробуйте заново. ({e})")
 
     @commands.command(name="pv-setlimit")
     @commands.has_permissions(administrator=True)
     async def setlimit(self, ctx, num):
         c = self.conn
-        if True:
-            voice = c.execute("SELECT * FROM guildSettings WHERE guildID = ?", (ctx.guild.id,)).fetchone()
-            if voice is None:
-                c.execute("INSERT INTO guildSettings VALUES (?, ?, ?)", (ctx.guild.id,f"{ctx.author.name}'s channel",num))
-            else:
-                c.execute("UPDATE guildSettings SET channelLimit = ? WHERE guildID = ?", (num, ctx.guild.id))
-            await ctx.send("Вы изменили стандартный лимит канала для вашего сервера.")
+
+        voice = c.execute("SELECT * FROM guildSettings WHERE guildID = ?", (ctx.guild.id,)).fetchone()
+        if voice is None:
+            c.execute("INSERT INTO guildSettings VALUES (?, ?, ?)", (ctx.guild.id,f"{ctx.author.name}'s channel",num))
         else:
-            await ctx.channel.send(f"{ctx.author.mention} только владелец сервера может делать это!")
+            c.execute("UPDATE guildSettings SET channelLimit = ? WHERE guildID = ?", (num, ctx.guild.id))
+        await ctx.send("Вы изменили стандартный лимит канала для вашего сервера.")
 
     @setup.error
     async def info_error(self, ctx, error):
@@ -230,8 +224,8 @@ class Voice(commands.Cog):
     @commands.command(name="pv-name")
     async def name(self, ctx,*, name):
         c = self.conn
-        id = ctx.author.id
-        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,)).fetchone()
+        aid = ctx.author.id
+        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (aid,)).fetchone()
         if voice is None:
             await ctx.channel.send(f"{ctx.author.mention}, вы не владелец канала.")
         else:
@@ -242,11 +236,11 @@ class Voice(commands.Cog):
                 f'{ctx.author.mention}, вы установили '
                 + f'{name} как название вашего канала.'
             )
-            voice = c.execute("SELECT channelName FROM userSettings WHERE userID = ?", (id,)).fetchone()
+            voice = c.execute("SELECT channelName FROM userSettings WHERE userID = ?", (aid,)).fetchone()
             if voice is None:
-                c.execute("INSERT INTO userSettings VALUES (?, ?, ?)", (id,name,0))
+                c.execute("INSERT INTO userSettings VALUES (?, ?, ?)", (aid,name,0))
             else:
-                c.execute("UPDATE userSettings SET channelName = ? WHERE userID = ?", (name, id))
+                c.execute("UPDATE userSettings SET channelName = ? WHERE userID = ?", (name, aid))
 
     @commands.command(name="pv-claim")
     async def claim(self, ctx):

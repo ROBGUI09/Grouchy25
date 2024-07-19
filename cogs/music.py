@@ -98,11 +98,7 @@ class YTDLSource:
         if 'entries' not in data:
             process_info = data
         else:
-            process_info = None
-            for entry in data['entries']:
-                if entry:
-                    process_info = entry
-                    break
+            process_info = next((entry for entry in data if entry), None)
 
             if process_info is None:
                 raise YTDLError(f'По запросу `{search}` ничего не найдено.')

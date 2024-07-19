@@ -28,6 +28,11 @@ ballanswers = [
   "Весьма сомнительно"
 ]
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DATABASES_FOLDER = os.environ.get("DATABASES_FOLDER",'dbs')
 
 howrutexts=["Сойдет","Отлично","Нормально"]
 

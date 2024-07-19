@@ -25,6 +25,7 @@ SOFTWARE.
 from discord.ext import commands
 import sqlite3
 from random import randint
+import data, os.path
 
 
 def initialize(database):
@@ -291,7 +292,7 @@ class Database:
         except sqlite3.Error as e:
             return e
 
-db = Database("dbs/reactionlight.db")
+db = Database(os.path.join(data.DATABASES_FOLDER,"reactionlight.db"))
 
 def system_notification(data):
 	print(data)
