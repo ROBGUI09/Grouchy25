@@ -9,6 +9,8 @@ import re
 botcolour = 16734003
 
 def str_time_to_seconds(str_time, language='ru'):
+    if str_time == "": return (None, "вечно")
+
     conv_dict = {
         'w': 'weeks',
         'week': 'weeks',
@@ -193,7 +195,7 @@ class ReputationCog(commands.Cog):
             await ctx.send(f"Пользователь {member.mention} забанен на {sdur}. Причина: {reason}")
 
             expires_at = datetime.datetime.now(datetime.timezone.utc) + duration if duration else None
-            self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "ban", duration.total_seconds(), reason, expires_at.timestamp()))
+            self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "ban", duration.total_seconds() if duration else None, reason, expires_at.timestamp()))
             self.db.commit()
 
         except discord.Forbidden:
@@ -208,8 +210,8 @@ class ReputationCog(commands.Cog):
             await member.edit(mute=True, reason=reason)
             await ctx.send(f"**Silence!** Пользователь {member.mention} замучен на {sdur}. Причина: {reason}")
 
-            expires_at = datetime.datetime.now(datetime.timezone.utc) + duration
-            self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "mute", duration.total_seconds(), reason, expires_at.timestamp()))
+            expires_at = datetime.datetime.now(datetime.timezone.utc) + duration if duration else None
+            self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "mute", duration.total_seconds() if duration else None, reason, expires_at.timestamp()))
             self.db.commit()
 
         except discord.Forbidden:

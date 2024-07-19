@@ -44,61 +44,60 @@ class Voice(commands.Cog):
         c = self.conn
         guildID = member.guild.id
         voice = c.execute("SELECT voiceChannelID FROM guild WHERE guildID = ?", (guildID,)).fetchone()
-        if voice is None:
+        if voice is None: return
+
+        voiceID = voice[0]
+        try:
+            if after.channel.id == voiceID:
+                cooldown = c.execute("SELECT * FROM voiceChannel WHERE userID = ?", (member.id,)).fetchone()
+                if cooldown is None:
+                    pass
+                else:
+                    await member.send("Ты создаёшь каналы слишком быстро, задержись на 15 секунд.")
+                    await asyncio.sleep(15)
+                voice = c.execute("SELECT voiceCategoryID FROM guild WHERE guildID = ?", (guildID,)).fetchone()
+                setting = c.execute("SELECT channelName, channelLimit FROM userSettings WHERE userID = ?", (member.id,)).fetchone()
+                guildSetting = c.execute("SELECT channelLimit FROM guildSettings WHERE guildID = ?", (guildID,)).fetchone()
+                if setting is None:
+                    name = f"Канал {member.name}'а"
+                    if guildSetting is None:
+                        limit = 0
+                    else:
+                        limit = guildSetting[0]
+                else:
+                    if guildSetting is None:
+                        name = setting[0]
+                        limit = setting[1]
+                    elif guildSetting is not None and setting[1] == 0:
+                        name = setting[0]
+                        limit = guildSetting[0]
+                    else:
+                        name = setting[0]
+                        limit = setting[1]
+                categoryID = voice[0]
+                id = member.id
+                category = self.bot.get_channel(categoryID)
+                channel2 = await member.guild.create_voice_channel(name,category=category)
+                channelID = channel2.id
+                await member.move_to(channel2)
+                await channel2.set_permissions(self.bot.user, connect=True,read_messages=True)
+                await channel2.edit(name= name, user_limit = limit)
+                c.execute("INSERT INTO voiceChannel VALUES (?, ?)", (id,channelID))
+                def check(a,b,c):
+                    return len(channel2.members) == 0
+                await self.bot.wait_for('voice_state_update', check=check)
+                await channel2.delete()
+                await asyncio.sleep(3)
+                c.execute('DELETE FROM voiceChannel WHERE userID=?', (id,))
+        except:
             pass
-        else:
-            voiceID = voice[0]
-            try:
-                if after.channel.id == voiceID:
-                    cooldown = c.execute("SELECT * FROM voiceChannel WHERE userID = ?", (member.id,)).fetchone()
-                    if cooldown is None:
-                        pass
-                    else:
-                        await member.send("Ты создаёшь каналы слишком быстро, задержись на 15 секунд.")
-                        await asyncio.sleep(15)
-                    voice = c.execute("SELECT voiceCategoryID FROM guild WHERE guildID = ?", (guildID,)).fetchone()
-                    setting = c.execute("SELECT channelName, channelLimit FROM userSettings WHERE userID = ?", (member.id,)).fetchone()
-                    guildSetting = c.execute("SELECT channelLimit FROM guildSettings WHERE guildID = ?", (guildID,)).fetchone()
-                    if setting is None:
-                        name = f"Канал {member.name}'а"
-                        if guildSetting is None:
-                            limit = 0
-                        else:
-                            limit = guildSetting[0]
-                    else:
-                        if guildSetting is None:
-                            name = setting[0]
-                            limit = setting[1]
-                        elif guildSetting is not None and setting[1] == 0:
-                            name = setting[0]
-                            limit = guildSetting[0]
-                        else:
-                            name = setting[0]
-                            limit = setting[1]
-                    categoryID = voice[0]
-                    id = member.id
-                    category = self.bot.get_channel(categoryID)
-                    channel2 = await member.guild.create_voice_channel(name,category=category)
-                    channelID = channel2.id
-                    await member.move_to(channel2)
-                    await channel2.set_permissions(self.bot.user, connect=True,read_messages=True)
-                    await channel2.edit(name= name, user_limit = limit)
-                    c.execute("INSERT INTO voiceChannel VALUES (?, ?)", (id,channelID))
-                    def check(a,b,c):
-                        return len(channel2.members) == 0
-                    await self.bot.wait_for('voice_state_update', check=check)
-                    await channel2.delete()
-                    await asyncio.sleep(3)
-                    c.execute('DELETE FROM voiceChannel WHERE userID=?', (id,))
-            except:
-                pass
 
     @commands.command(name="pv-setup")
     @commands.has_permissions(administrator=True)
     async def setup(self, ctx):
         c = self.conn
         guildID = ctx.guild.id
-        id = ctx.author.id
+        aid = ctx.author.id
         if True:
             def check(m):
                 return m.author.id == ctx.author.id
@@ -118,11 +117,11 @@ class Voice(commands.Cog):
                 else:
                     try:
                         channel = await ctx.guild.create_voice_channel(channel.content, category=new_cat)
-                        voice = c.execute("SELECT * FROM guild WHERE guildID = ? AND ownerID=?", (guildID, id)).fetchone()
+                        voice = c.execute("SELECT * FROM guild WHERE guildID = ? AND ownerID=?", (guildID, aid)).fetchone()
                         if voice is None:
-                            c.execute("INSERT INTO guild VALUES (?, ?, ?, ?)",(guildID,id,channel.id,new_cat.id))
+                            c.execute("INSERT INTO guild VALUES (?, ?, ?, ?)",(guildID,aid,channel.id,new_cat.id))
                         else:
-                            c.execute("UPDATE guild SET guildID = ?, ownerID = ?, voiceChannelID = ?, voiceCategoryID = ? WHERE guildID = ?",(guildID,id,channel.id,new_cat.id, guildID))
+                            c.execute("UPDATE guild SET guildID = ?, ownerID = ?, voiceChannelID = ?, voiceCategoryID = ? WHERE guildID = ?",(guildID,aid,channel.id,new_cat.id, guildID))
                         await ctx.channel.send("**Готово!**")
                     except:
                         await ctx.channel.send("Вы ввели что-то неправильно.\nПопробуйте заново.")
@@ -150,8 +149,8 @@ class Voice(commands.Cog):
     @commands.command(name="pv-lock")
     async def lock(self, ctx):
         c = self.conn
-        id = ctx.author.id
-        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,)).fetchone()
+        aid = ctx.author.id
+        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (aid,)).fetchone()
         if voice is None:
             await ctx.channel.send(f"{ctx.author.mention}, вы не владелец канала.")
         else:
@@ -178,8 +177,8 @@ class Voice(commands.Cog):
     @commands.command(name="pv-permit",aliases=["pv-allow"])
     async def permit(self, ctx, member : discord.Member):
         c = self.conn
-        id = ctx.author.id
-        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,)).fetchone()
+        aid = ctx.author.id
+        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (aid,)).fetchone()
         if voice is None:
             await ctx.channel.send(f"{ctx.author.mention}, вы не владелец канала.")
         else:
@@ -191,9 +190,9 @@ class Voice(commands.Cog):
     @commands.command(name="pv-reject",aliases=["pv-deny"])
     async def reject(self, ctx, member : discord.Member):
         c = self.conn
-        id = ctx.author.id
+        aid = ctx.author.id
         guildID = ctx.guild.id
-        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,)).fetchone()
+        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (aid,)).fetchone()
         if voice is None:
             await ctx.channel.send(f"{ctx.author.mention}, вы не владелец канала.")
         else:
@@ -212,8 +211,8 @@ class Voice(commands.Cog):
     @commands.command(name="pv-limit")
     async def limit(self, ctx, limit):
         c = self.conn
-        id = ctx.author.id
-        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,)).fetchone()
+        aid = ctx.author.id
+        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (aid,)).fetchone()
         if voice is None:
             await ctx.channel.send(f"{ctx.author.mention}, вы не владелец канала.")
         else:
