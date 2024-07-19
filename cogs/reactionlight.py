@@ -160,7 +160,6 @@ class Database:
         except sqlite3.Error as e:
             logging.error(f"Database error occurred: {e}")
             return e
-            return e
         del self.reactionrole_creation[f"{user}_{channel}"]
 
 
