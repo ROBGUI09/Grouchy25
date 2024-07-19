@@ -120,22 +120,25 @@ async def ball(ctx, *arg):
 	
 @bot.command()
 async def weather(ctx, *args):
-	arg = " ".join(args)
-	if arg == "":
-		embed=discord.Embed(description=":warning: Укажите город",colour=botcolour)
-		embed.set_footer(icon_url=logo, text=botname)
-		await ctx.message.reply(embed=embed)
-		return
-	try:
-		weather = get_weather(arg)
-		icon = ":cloud:" if weather.weather.status == "Clouds" else ":sunny:" if weather.weather.status == "Clear" else ":question:"
-		embed=discord.Embed(description=icon+" В городе "+weather.location.name+" сейчас "+weather.weather.detailed_status+" ("+weather.weather.status+")",colour=botcolour)
-		embed.set_footer(icon_url=logo, text=botname)
-		await ctx.message.reply(embed=embed)
-	except NotFoundError:
-		embed=discord.Embed(description=":warning: Город \""+arg+"\" не найден!",colour=botcolour)
-		embed.set_footer(icon_url=logo, text=botname)
-		await ctx.message.reply(embed=embed)
+    arg = " ".join(args)
+    if not arg:
+        embed=discord.Embed(description=":warning: Укажите город",colour=botcolour)
+        embed.set_footer(icon_url=logo, text=botname)
+        await ctx.message.reply(embed=embed)
+        return
+    try:
+        weather = get_weather(arg)
+        icon = ":cloud:" if weather.weather.status == "Clouds" else ":sunny:" if weather.weather.status == "Clear" else ":question:"
+        embed = discord.Embed(
+            description=f"{icon} В городе {weather.location.name} сейчас {weather.weather.detailed_status} ({weather.weather.status})",
+            colour=botcolour,
+        )
+        embed.set_footer(icon_url=logo, text=botname)
+        await ctx.message.reply(embed=embed)
+    except NotFoundError:
+    	embed=discord.Embed(description=":warning: Город \""+arg+"\" не найден!",colour=botcolour)
+    	embed.set_footer(icon_url=logo, text=botname)
+    	await ctx.message.reply(embed=embed)
 		
 @bot.command()
 async def vip(ctx):
