@@ -1,7 +1,7 @@
 import sqlite3
 import time
 
-db = sqlite3.connect('dbs/grouchy.db')
+db = sqlite3.connect(os.path.join(data.DATABASES_FOLDER,'grouchy.db'))
 cur = db.cursor()
     
 def check_for_vip(guild_id):
@@ -51,11 +51,10 @@ def update_guilds(bot: Bot):
     if 'default' in guild_ids:
         guild_ids.remove('default')
     for guild_id in guild_ids:
-        guild_obj = bot.get_guild(int(guild_id))
-        if not guild_obj:
-            guilds.pop(guild_id)
-        else:
+        if guild_obj := bot.get_guild(int(guild_id)):
             guilds[guild_id]['name'] = guild_obj.name
+        else:
+            guilds.pop(guild_id)
     for guild_obj in bot.guilds:
         if str(guild_obj.id) not in guild_ids:
             guilds[str(guild_obj.id)] = {
@@ -73,34 +72,34 @@ def parse_time(time_string: str, regex: str = None):
     else:
         regex: re.Pattern = re.compile(r'^((?P<days>[\.\d]+?)d)?((?P<hours>[\.\d]+?)h)?((?P<minutes>[\.\d]+?)m)?((?P<seconds>[\.\d]+?)s)?$')
     parts = regex.match(time_string)
+<<<<<<< HEAD
+    if parts is None:
+        raise AttributeError(f"Could not parse any time information from '{time_string}'.  Examples of valid strings: '16h', '2d8h5m20s', '7m4s'")
+=======
     if parts is None:
         raise ValueError(f"Could not parse any time information from '{time_string}'. Examples of valid strings: '16h', '2d8h5m20s', '7m4s'")
+>>>>>>> a62e6a1497384f968dc57897e9087ff60513dcb6
     time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
     try:
         return datetime.timedelta(**time_params)
-    except: return None
+    except Excpetion: return None
 
 
 def parse_command(command: str):
-    args = shlex.split(command)
-    keys = []
-    values = []
-    for arg in args:
-        if arg.endswith(':'):
-            keys.append(arg)
-    if not keys:
-        return {}
-    x = []
-    for arg in args[args.index(keys[0]) + 1:]:
-        if arg not in keys:
-            x.append(arg)
-        if arg in keys or args.index(arg) == len(args) - 1:
-            if x:
-                values.append(x)
-                x = []
-            continue
-    opts = {k.strip(':'): v for k, v in zip(keys, values)}
-    return opts
+    args = shlex.split(command)  
+    values = []  
+    keys = [arg for arg in args if arg.endswith(':')]  
+    if not keys:  
+        return {}  
+    x = []  
+    for arg in args[args.index(keys[0]) + 1:]:  
+        if arg not in keys:  
+            x.append(arg)  
+        if arg in keys or args.index(arg) == len(args) - 1:  
+            if x:  
+                values.append(x)  
+                x = []  
+    return {k.strip(':'): v for k, v in zip(keys, values)}  
 
 
 def channel_bound(func):
