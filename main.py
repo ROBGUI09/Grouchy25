@@ -138,7 +138,7 @@ async def weather(ctx, *args):
     	embed=discord.Embed(description=":warning: Город \""+arg+"\" не найден!",colour=botcolour)
     	embed.set_footer(icon_url=logo, text=botname)
     	await ctx.message.reply(embed=embed)
-		
+
 @bot.command()
 async def vip(ctx):
 	vip = utils.check_for_vip(ctx.guild.id)
@@ -146,8 +146,7 @@ async def vip(ctx):
 		await ctx.message.reply("Випки нету")
 	else:
 		await ctx.message.reply(f"Випка подключена до <t:{vip}> (истечет <t:{vip}:R>)")
-		
-		
+
 @bot.event
 async def on_message(message):
 	await bot.process_commands(message)
