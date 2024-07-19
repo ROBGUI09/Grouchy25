@@ -1,0 +1,9 @@
+discord.py
+python-dotenv
+pyowm
+yt-dlp
+validators
+discord-logging
+pynacl
+async-timeout
+psutil
