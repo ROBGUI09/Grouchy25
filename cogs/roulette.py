@@ -111,7 +111,7 @@ class Game(Cog):
             if self.info is not None:
                 response = f"{player.mention} {self.info}."
                 if self.duration is not None:
-                    duration_end = datetime.datetime.utcnow() + self.duration
+                    duration_end = datetime.datetime.now(datetime.timezone.utc) + self.duration
                     response += f"\nYour timer ends at {duration_end.strftime('%Y-%m-%d %I:%M:%S %p')} UTC."
                 message = await ctx.reply(response, mention_author=False)
                 await message.pin()
