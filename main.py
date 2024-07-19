@@ -38,10 +38,10 @@ from discord.gateway import DiscordWebSocket
 class MyDiscordWebSocket(DiscordWebSocket):
 
     async def send_as_json(self, data):
-        if data.get('op') == self.IDENTIFY:
-            if data.get('d', {}).get('properties', {}).get('$browser') is not None:
-                data['d']['properties']['$browser'] = 'Discord Android'
-                data['d']['properties']['$device'] = 'Discord Android'
+        if data.get('op') == self.IDENTIFY and data.get('d', {}).get('properties', {}).get('$browser') is not None:
+            data['d']['properties']['$browser'] = 'Discord Android'
+            data['d']['properties']['$device'] = 'Discord Android'
+
         await super().send_as_json(data)
 
 
