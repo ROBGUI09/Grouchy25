@@ -14,7 +14,7 @@ from pathlib import Path
 Path("dbs").mkdir(parents=True, exist_ok=True)
 
 load_dotenv()
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 intents = discord.Intents.default()
 
 intents.members = True
