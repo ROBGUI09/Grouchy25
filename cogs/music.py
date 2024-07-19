@@ -242,7 +242,14 @@ class VKSource:
         if len(data.get("response",{}).get('items',[])) == 0:
             raise VKError(f'По запросу `{search}` ничего не найдено.')
 
-        return [[audio['title'],audio['artist'],"audio{}_{}_{}".format(audio['owner_id'],audio['id'],audio['access_key'])] for audio in data['response']['items']]
+        return [
+            [
+                audio['title'],
+                audio['artist'],
+                f"audio{audio['owner_id']}_{audio['id']}_{audio['access_key']}",
+            ]
+            for audio in data['response']['items']
+        ]
 
     @classmethod
     async def _parse_audio(cls, ctx: commands.Context, audio: dict):
