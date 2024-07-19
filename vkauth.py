@@ -49,9 +49,10 @@ class VkAndroidApi(object):
 
     def method(self, method, **params):
         try: 
-            url = ("/method/{method}?v={v}&access_token={token}&device_id={device_id}"
-            .format(method=method,v=self.v,token=self.token,device_id=self.device_id)
-                +"".join("&%s=%s"%(i,params[i]) for i in params if params[i] is not None)
+            url = "/method/{method}?v={v}&access_token={token}&device_id={device_id}".format(
+                method=method, v=self.v, token=self.token, device_id=self.device_id
+            ) + "".join(
+                f"&{i}={params[i]}" for i in params if params[i] is not None
             )
             return self._send(url, params, method)
         except requests.exceptions.RequestException as e:
