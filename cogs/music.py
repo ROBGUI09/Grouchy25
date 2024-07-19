@@ -303,16 +303,21 @@ class Song:
         self.requester = source.requester
 
     def create_embed(self):
-        embed = (discord.Embed(title='Сейчас играет',
-                               description=f'```css\n{self.source.title}\n```',
-                               color=16734003)
-                 .add_field(name='Длительность', value=self.source.duration)
-                 .add_field(name='Запрошено', value=self.requester.mention)
-                 .add_field(name='Автор', value=f'[{self.source.uploader}]({self.source.uploader_url})')
-                 .add_field(name='Ссылка', value=f'[Ссылка]({self.source.url})')
-                 .set_thumbnail(url=self.source.thumbnail))
-
-        return embed
+        return (
+            discord.Embed(
+                title='Сейчас играет',
+                description=f'```css\n{self.source.title}\n```',
+                color=16734003,
+            )
+            .add_field(name='Длительность', value=self.source.duration)
+            .add_field(name='Запрошено', value=self.requester.mention)
+            .add_field(
+                name='Автор',
+                value=f'[{self.source.uploader}]({self.source.uploader_url})',
+            )
+            .add_field(name='Ссылка', value=f'[Ссылка]({self.source.url})')
+            .set_thumbnail(url=self.source.thumbnail)
+        )
 
 def crop(text):
     return text[:100] if len(text) > 100 else text
