@@ -20,10 +20,12 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-handleri = logging.FileHandler(filename='info.log', encoding='utf-8', mode='a')
+from logging.handlers import RotatingFileHandler
+
+handleri = RotatingFileHandler(filename='info.log', encoding='utf-8', mode='a', maxBytes=10485760, backupCount=5)
 handleri.setLevel(logging.INFO)
 handleri.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-handlers = logging.FileHandler(filename='error.log', encoding='utf-8', mode='a')
+handlers = RotatingFileHandler(filename='error.log', encoding='utf-8', mode='a', maxBytes=10485760, backupCount=5)
 handlers.setLevel(logging.ERROR)
 handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 
