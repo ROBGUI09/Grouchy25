@@ -20,7 +20,7 @@ def prune(bot):
             await ctx.send("Количество сообщений для удаления должно быть больше 0.")
             await ctx.message.add_reaction(emoji='❌')
         else:
-            confirmation_message = await ctx.send(f"Вы уверены, что хотите удалить {amount} сообщений? Ответьте 'да' для подтверждения.")
+            await ctx.send(f"Вы уверены, что хотите удалить {amount} сообщений? Ответьте 'да' для подтверждения.")
             
             def check(m):
                 return m.author == ctx.author and m.content.lower() == 'да' and m.channel == ctx.channel

@@ -118,14 +118,14 @@ class YTDLSource:
                 try:
                     info = processed_info['entries'].pop(0)
                 except IndexError as e:
-                    raise YTDLError(f'Запрос `{webpage_url}` ничего не нашел.')
+                    raise YTDLError(f'Запрос `{webpage_url}` ничего не нашел.') from e
 
         return cls(ctx, info)
 
-    async def get_stream(source, loop: asyncio.BaseEventLoop = None):
+    async def get_stream(self, loop: asyncio.BaseEventLoop = None):
         loop = loop or asyncio.get_event_loop()
 
-        partial = functools.partial(source.ytdl.extract_info, source.url, download=False)
+        partial = functools.partial(self.ytdl.extract_info, self.url, download=False)
         processed_info = await loop.run_in_executor(None, partial)
 
         if processed_info is None:

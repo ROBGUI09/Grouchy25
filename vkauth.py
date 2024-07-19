@@ -38,8 +38,11 @@ class VkAndroidApi(object):
             self.secret = secret
         else:
             a = self.session.get("https://oauth.vk.com/token", params=self._get_auth_params(login, password))
-            print(a.text)
-            answer = a.json()
+            try:
+                answer = a.json()
+            except:
+                print(a.text)
+                return
             if ("error" in answer): raise PermissionError(json.dumps(answer, indent=2))
             self.secret = answer["secret"]
             self.token = answer["access_token"]
