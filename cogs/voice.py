@@ -5,40 +5,37 @@ import traceback
 import sqlite3
 import validators
 import dbuni
-import data
+import data, os
 
 def create_db():
-    c = dbuni(os.path.join(data.DATABASES_FOLDER,'voice.db'))
-    c.connect()
+    c = dbuni.Database(os.path.join(data.DATABASES_FOLDER,'voice.db'))
     c.execute('''CREATE TABLE IF NOT EXISTS "guild" (
         `guildID`       INTEGER,
         `ownerID`       INTEGER,
         `voiceChannelID`        INTEGER,
         `voiceCategoryID`       INTEGER
 );''')
-    c.execute('''CREATE TABLE `guildSettings` (
+    c.execute('''CREATE TABLE IF NOT EXISTS `guildSettings` (
         `guildID`       INTEGER,
         `channelName`   TEXT,
         `channelLimit`  INTEGER
 );''')
-    c.execute('''CREATE TABLE `userSettings` (
+    c.execute('''CREATE TABLE IF NOT EXISTS `userSettings` (
         `userID`        INTEGER,
         `channelName`   TEXT,
         `channelLimit`  INTEGER
 );''')
-    c.execute('''CREATE TABLE `voiceChannel` (
+    c.execute('''CREATE TABLE IF NOT EXISTS `voiceChannel` (
         `userID`        INTEGER,
         `voiceID`       INTEGER
 );''')
-    c.close()
 
 create_db()
 
 class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.conn = dbuni(os.path.join(data.DATABASES_FOLDER,'voice.db'))
-        self.conn.connect()
+        self.conn = dbuni.Database(os.path.join(data.DATABASES_FOLDER,'voice.db'))
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

@@ -5,7 +5,7 @@ import json
 import datetime
 import asyncio
 import re
-import data
+import data, os
 
 botcolour = data.botcolour
 

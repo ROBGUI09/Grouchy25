@@ -5,14 +5,13 @@ from data import *
 import os
 import utils, time
 import asyncio
-import database
-from cogs import voice, rep, dota, reactionlight
+from cogs import voice, rep, dota, reactionlight, music
 import logging
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
 import pogoda
-Path("dbs").mkdir(parents=True, exist_ok=True)
+Path(DATABASES_FOLDER).mkdir(parents=True, exist_ok=True)
 
 load_dotenv()
 logger = logging.getLogger(__name__)

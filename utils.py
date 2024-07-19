@@ -1,5 +1,5 @@
 import sqlite3
-import time
+import time, os, data
 
 db = sqlite3.connect(os.path.join(data.DATABASES_FOLDER,'grouchy.db'))
 cur = db.cursor()

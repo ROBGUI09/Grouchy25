@@ -1,1 +1,1 @@
-import dota,music,rep,voice,reactionlight
+from . import dota,music,rep,voice,reactionlight

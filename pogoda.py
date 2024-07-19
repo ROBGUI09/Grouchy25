@@ -7,7 +7,7 @@ import os
 load_dotenv()
 
 config_dict = get_config_from('./owmconfig.json')
-owm = OWM(os.environ("OWM_TOKEN",""), config_dict)
+owm = OWM(os.environ.get("OWM_TOKEN",""), config_dict)
 mgr = owm.weather_manager()
 
 def get_weather(city: str):
