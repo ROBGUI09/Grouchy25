@@ -46,10 +46,16 @@ class YTDLSource:
 
     FFMPEG_OPTIONS = {
         'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-audio_filter = 'bass=g=-10'  # Значение по умолчанию, может быть настроено
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+audio_filter = config.get('AudioSettings', 'filter', fallback='bass=g=-10')
 FFMPEG_OPTIONS = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': f'-af "{audio_filter}" -vn',
+}
 }
     }
 
