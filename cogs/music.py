@@ -68,7 +68,7 @@ class YTDLSource:
         self.uploader_url = data.get('uploader_url')
         date = data.get('upload_date')
         if date and len(date) == 8 and date.isdigit():
-            self.upload_date = date[6:8] + '.' + date[4:6] + '.' + date[0:4]
+            self.upload_date = f'{date[6:8]}.{date[4:6]}.' + date[:4]
         else:
             self.upload_date = 'Unknown'
         self.title = data.get('title')
@@ -117,7 +117,7 @@ class YTDLSource:
             while info is None:
                 try:
                     info = processed_info['entries'].pop(0)
-                except IndexError:
+                except IndexError as e:
                     raise YTDLError(f'Запрос `{webpage_url}` ничего не нашел.')
 
         return cls(ctx, info)
@@ -255,7 +255,7 @@ class VKSource:
 
     @classmethod
     async def _parse_audio(cls, ctx: commands.Context, audio: dict):
-        if audio['url'] == "":
+        if audio.get('url',"") == "":
             return None
 
         info = {
@@ -688,11 +688,11 @@ class Music(commands.Cog):
         if not ctx.voice_state.is_playing:
             return await ctx.send('Ничего не играет в данный момент.')
 
-        if mode == None:
+        if mode is None:
             await ctx.send(ctx.voice_state.loop)
 
         # Inverse boolean value to loop and unloop.
-        if mode in ["off","one","all"]:
+        if mode in set("off","one","all"):
             ctx.voice_state.loop = mode
             await ctx.message.add_reaction('✅')
         else:

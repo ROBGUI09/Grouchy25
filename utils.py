@@ -6,8 +6,7 @@ cur = db.cursor()
     
 def check_for_vip(guild_id):
     cur.execute('SELECT vip_status FROM guilds WHERE id=?', (guild_id,))
-    row = cur.fetchone()
-    if row:
+    if row := cur.fetchone():
         return row[0]
     cur.execute("INSERT INTO guilds (id, vip_status) VALUES (?,0)", (guild_id,))
     db.commit()

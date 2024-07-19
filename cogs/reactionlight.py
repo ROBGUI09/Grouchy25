@@ -735,7 +735,7 @@ class ReactionLight(commands.Cog):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Напиши** `s!rm-embed #имя-канала` чтобы начать. Замени"
+				"**Напиши** `s!rm-embed #имя-канала` чтобы начать. Замени"
 				" `#имя-канала` на канал, где сообщение роль-реакции вы"
 				" хотите убрать."
 			)
@@ -916,18 +916,10 @@ class ReactionLight(commands.Cog):
 			else:
 				foreign_admins.append(f"`{admin_id}`")
 
-		if local_admins and foreign_admins:
+		if local_admins:
 			await ctx.send(
 				"Админы бота на этом сервере:\n- "
 				+ "\n- ".join(local_admins)
-			)
-		elif local_admins and not foreign_admins:
-			await ctx.send(
-				"The bot admins on this server are:\n- "
-			)
-		elif not local_admins and foreign_admins:
-			await ctx.send(
-				"There are no bot admins on this server."
 			)
 		else:
 			await ctx.send("Нет зарегистрированных администраторов ботов.")

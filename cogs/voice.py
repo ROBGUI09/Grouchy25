@@ -252,7 +252,7 @@ class Voice(commands.Cog):
         if channel is None:
             await ctx.channel.send(f"{ctx.author.mention} вы не в голосовом канале.")
         else:
-            id = ctx.author.id
+            aid = ctx.author.id
             voice = c.execute("SELECT userID FROM voiceChannel WHERE voiceID = ?", (channel.id,)).fetchone()
             if voice is None:
                 await ctx.channel.send(f"{ctx.author.mention}, вы не можете завладеть этим каналом.")
@@ -264,7 +264,7 @@ class Voice(commands.Cog):
                         x = True
                 if x == False:
                     await ctx.channel.send(f"{ctx.author.mention}, вы теперь владелец канала.")
-                    c.execute("UPDATE voiceChannel SET userID = ? WHERE voiceID = ?", (id, channel.id))
+                    c.execute("UPDATE voiceChannel SET userID = ? WHERE voiceID = ?", (aid, channel.id))
 
 
 def setup(bot):
