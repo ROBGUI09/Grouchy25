@@ -37,7 +37,7 @@ class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.conn = dbuni('dbs/voice.db')
-        conn.connect()
+        self.conn.connect()
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

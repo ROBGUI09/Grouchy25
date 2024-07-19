@@ -73,7 +73,9 @@ def parse_time(time_string: str, regex: str = None):
     parts = regex.match(time_string)
     assert parts is not None, f"Could not parse any time information from '{time_string}'.  Examples of valid strings: '16h', '2d8h5m20s', '7m4s'"
     time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
-    return datetime.timedelta(**time_params)
+    try:
+        return datetime.timedelta(**time_params)
+    except: return None
 
 
 def parse_command(command: str):

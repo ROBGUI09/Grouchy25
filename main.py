@@ -6,7 +6,7 @@ import os
 import utils, time
 import asyncio
 import database
-from cogs import voice, rep, dota, roulette, reactionlight
+from cogs import voice, rep, dota, reactionlight
 import logging
 import requests
 from dotenv import load_dotenv
@@ -50,21 +50,6 @@ prefixes = ["s!"]
 bot = commands.Bot(command_prefix=prefixes, intents=intents)
 bot.http.user_agent = "Discord IOS"
 bot.remove_command('help')
-
-def system_notification(data):
-	print(data)
-
-def isadmin(user):
-	# Checks if command author has an admin role that was added with rl!admin
-	admins = db.get_admins()
-	if isinstance(admins, Exception):
-		return False
-	try:
-		user_roles = [role.id for role in user.roles]
-		return [admin_role for admin_role in admins if admin_role in user_roles]
-	except AttributeError:
-		# Error raised from 'fake' users, such as webhooks
-		return False
 				
 @bot.event
 async def on_ready():
