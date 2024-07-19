@@ -136,7 +136,7 @@ class ReputationCog(commands.Cog):
         self.check_punishments_task = None
 
     async def cog_before_invoke(self, ctx: commands.Context):
-        if self.check_punishments_task == None:
+        if self.check_punishments_task is None:
             self.check_punishments_task = self.bot.loop.create_task(self.check_punishments())
             print("ran checker")
 
