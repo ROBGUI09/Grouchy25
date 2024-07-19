@@ -98,35 +98,32 @@ class Voice(commands.Cog):
         c = self.conn
         guildID = ctx.guild.id
         aid = ctx.author.id
-        if True:
-            def check(m):
-                return m.author.id == ctx.author.id
-            await ctx.channel.send("**У вас есть 60 секунд, чтобы ответить**")
-            await ctx.channel.send(f"**Выберите название для категории в которой вы хотите создавать приватные каналы :(Например 'Приватки')**")
+        def check(m):
+            return m.author.id == ctx.author.id
+        await ctx.channel.send("**У вас есть 60 секунд, чтобы ответить**")
+        await ctx.channel.send("**Выберите название для категории в которой вы хотите создавать приватные каналы :(Например 'Приватки')**")
+        try:
+            category = await self.bot.wait_for('message', check=check, timeout = 60.0)
+        except asyncio.TimeoutError:
+            await ctx.channel.send('Бот не дождался ответа. Начните заново.')
+        else:
+            new_cat = await ctx.guild.create_category_channel(category.content)
+            await ctx.channel.send('**Выберите название для канала, через который вы хотите создавать приватные каналы: (Например "[+] Приватка")**')
             try:
-                category = await self.bot.wait_for('message', check=check, timeout = 60.0)
+                channel = await self.bot.wait_for('message', check=check, timeout = 60.0)
             except asyncio.TimeoutError:
                 await ctx.channel.send('Бот не дождался ответа. Начните заново.')
             else:
-                new_cat = await ctx.guild.create_category_channel(category.content)
-                await ctx.channel.send('**Выберите название для канала, через который вы хотите создавать приватные каналы: (Например "[+] Приватка")**')
                 try:
-                    channel = await self.bot.wait_for('message', check=check, timeout = 60.0)
-                except asyncio.TimeoutError:
-                    await ctx.channel.send('Бот не дождался ответа. Начните заново.')
-                else:
-                    try:
-                        channel = await ctx.guild.create_voice_channel(channel.content, category=new_cat)
-                        voice = c.execute("SELECT * FROM guild WHERE guildID = ? AND ownerID=?", (guildID, aid)).fetchone()
-                        if voice is None:
-                            c.execute("INSERT INTO guild VALUES (?, ?, ?, ?)",(guildID,aid,channel.id,new_cat.id))
-                        else:
-                            c.execute("UPDATE guild SET guildID = ?, ownerID = ?, voiceChannelID = ?, voiceCategoryID = ? WHERE guildID = ?",(guildID,aid,channel.id,new_cat.id, guildID))
-                        await ctx.channel.send("**Готово!**")
-                    except:
-                        await ctx.channel.send("Вы ввели что-то неправильно.\nПопробуйте заново.")
-        else:
-            await ctx.channel.send(f"{ctx.author.mention} только владелец сервера может делать это!")
+                    channel = await ctx.guild.create_voice_channel(channel.content, category=new_cat)
+                    voice = c.execute("SELECT * FROM guild WHERE guildID = ? AND ownerID=?", (guildID, aid)).fetchone()
+                    if voice is None:
+                        c.execute("INSERT INTO guild VALUES (?, ?, ?, ?)",(guildID,aid,channel.id,new_cat.id))
+                    else:
+                        c.execute("UPDATE guild SET guildID = ?, ownerID = ?, voiceChannelID = ?, voiceCategoryID = ? WHERE guildID = ?",(guildID,aid,channel.id,new_cat.id, guildID))
+                    await ctx.channel.send("**Готово!**")
+                except:
+                    await ctx.channel.send("Вы ввели что-то неправильно.\nПопробуйте заново.")
 
     @commands.command(name="pv-setlimit")
     @commands.has_permissions(administrator=True)
