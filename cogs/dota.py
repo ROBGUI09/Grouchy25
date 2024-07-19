@@ -35,7 +35,9 @@ class DotaInfo(commands.Cog):
         embed = discord.Embed(title=f"{hero['localized_name']}, {hero['attack_type']}")
         embed.add_field(name="Роли", value=", ".join(hero['roles']), inline=False)
         embed.add_field(name="Паб (7дн)", value=f"{hero['pub_win']}/{hero['pub_pick']} ({'{:.2f}%'.format((hero['pub_win'] / hero['pub_pick'])*100)})", inline=True)
-        embed.add_field(name="Про (7дн)", value=f"{hero['pro_win']}/{hero['pro_pick']} ({'{:.2f}%'.format((hero['pro_win'] / hero['pro_pick'])*100)})", inline=True)
+pro_win_rate = (hero['pro_win'] / hero['pro_pick']) * 100
+pro_win_rate_str = f"{pro_win_rate:.2f}%"
+embed.add_field(name="Про (7дн)", value=f"{hero['pro_win']}/{hero['pro_pick']} ({pro_win_rate_str})", inline=True)
         embed.set_thumbnail(url="https://cdn.cloudflare.steamstatic.com" + hero['img'])
 
         items = requests.get(f"https://api.opendota.com/api/heroes/{hero['id']}/itemPopularity").json()
