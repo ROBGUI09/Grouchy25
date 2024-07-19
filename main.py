@@ -373,21 +373,17 @@ async def on_raw_reaction_remove(payload):
 
 @bot.command(name="rr-new")
 async def new(ctx):
-	if isadmin(ctx.message.author):
-		# Starts setup process and the bot starts to listen to the user in that channel
-		# For future prompts (see: "async def on_message(message)")
-		started = db.start_creation(ctx.message.author.id, ctx.message.channel.id)
-		if started:
-			await ctx.send("Упомяните #канал, куда я должен отправить сообщение авто-роли.")
-		else:
-			await ctx.send(
-				"Вы уже создаёте авто-роль сообщение. "
-				f"Используйте другой канал или напишите `s!rr-abort` сперва."
-			)
-	else:
-		await ctx.send(
-			f"У вас нет админ роли. Напишите `s!admin` сперва."
-		)
+    if isadmin(ctx.message.author):
+        if started := db.start_creation(
+            ctx.message.author.id, ctx.message.channel.id
+        ):
+            await ctx.send("Упомяните #канал, куда я должен отправить сообщение авто-роли.")
+        else:
+            await ctx.send(
+                'Вы уже создаёте авто-роль сообщение. Используйте другой канал или напишите `s!rr-abort` сперва.'
+            )
+    else:
+        await ctx.send("У вас нет админ роли. Напишите `s!admin` сперва.")
 
 
 @bot.command(name="rr-abort")
