@@ -220,7 +220,10 @@ class Voice(commands.Cog):
             channelID = voice[0]
             channel = self.bot.get_channel(channelID)
             await channel.edit(user_limit = limit)
-            await ctx.channel.send(f'{ctx.author.mention}, вы установили лимит канала на '+ '{} участников.'.format(limit))
+            await ctx.channel.send(
+                f'{ctx.author.mention}, вы установили лимит канала на '
+                + f'{limit} участников.'
+            )
             voice = c.execute("SELECT channelName FROM userSettings WHERE userID = ?", (id,)).fetchone()
             if voice is None:
                 c.execute("INSERT INTO userSettings VALUES (?, ?, ?)", (id,f'{ctx.author.name}',limit))
