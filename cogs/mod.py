@@ -55,5 +55,5 @@ def ban(bot):
             await ctx.send(f'{member} был забанен.')
             await ctx.message.add_reaction(emoji='✅')
         except Exception as e:
-            await ctx.send("Не удалось забанить: " + str(e))
+            await ctx.send(f"Не удалось забанить: {str(e)}")
             await ctx.message.add_reaction(emoji='❌')
