@@ -11,6 +11,7 @@ import logging
 import requests
 from dotenv import load_dotenv
 from pathlib import Path
+import pogoda
 Path("dbs").mkdir(parents=True, exist_ok=True)
 
 load_dotenv()
@@ -31,8 +32,6 @@ handlers.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(m
 
 logger.addHandler(handleri)
 logger.addHandler(handlers)
-
-token = os.environ.get("BOT_TOKEN")
 
 from discord.gateway import DiscordWebSocket
 class MyDiscordWebSocket(DiscordWebSocket):
@@ -809,7 +808,7 @@ loop = asyncio.get_event_loop()
 asyncio.run(setup_cogs())
 	
 try:
-	loop.run_until_complete(bot.start(token))
+	loop.run_until_complete(bot.start(os.environ.get("BOT_TOKEN")))
 except KeyboardInterrupt:
 	loop.run_until_complete(bot.close())
 	utils.db.close()

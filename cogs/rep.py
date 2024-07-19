@@ -148,7 +148,7 @@ class ReputationCog(commands.Cog):
         Проверка истечения наказаний.
         """
         while True:
-            self.cursor.execute("SELECT user_id, type, expires_at FROM punishments WHERE expires_at IS NOT NULL AND expires_at <= ?", (datetime.datetime.utcnow().timestamp(),))
+            self.cursor.execute("SELECT user_id, type, expires_at FROM punishments WHERE expires_at IS NOT NULL AND expires_at <= ?", (datetime.datetime.now(datetime.timezone.utc).timestamp(),))
             punishments = self.cursor.fetchall()
 
             for user_id, type, expires_at in punishments:
@@ -188,20 +188,13 @@ class ReputationCog(commands.Cog):
                 # Создаем временный инвайт
                 invite = await ctx.channel.create_invite(max_age=0, max_uses=1, unique=True)
                 await member.send(f"Кажется, тебя забанили, но это временно! Твой бан истечёт через {dur}; вот твой личный вечный одноразовый инвайт: {invite.url}")
-                await member.ban(reason=reason, delete_message_days=0)
-                await ctx.send(f"Пользователь {member.mention} забанен на {dur}. Причина: {reason}")
 
-                # Сохраняем информацию о бане в базе данных
-                expires_at = datetime.datetime.utcnow() + duration
-                self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "ban", duration.total_seconds(), reason, expires_at.timestamp()))
-                self.db.commit()
-            else:
-                await member.ban(reason=reason, delete_message_days=0)
-                await ctx.send(f"Пользователь {member.mention} забанен навсегда. Причина: {reason}")
+            await member.ban(reason=reason, delete_message_days=0)
+            await ctx.send(f"Пользователь {member.mention} забанен на {sdur}. Причина: {reason}")
 
-                # Сохраняем информацию о бане в базе данных
-                self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "ban", None, reason, None))
-                self.db.commit()
+            expires_at = datetime.datetime.now(datetime.timezone.utc) + duration if duration else None
+            self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "ban", duration.total_seconds(), reason, expires_at.timestamp()))
+            self.db.commit()
 
         except discord.Forbidden:
             await ctx.send("У меня нет прав на бан этого пользователя.")
@@ -211,21 +204,13 @@ class ReputationCog(commands.Cog):
     async def mute(self, ctx, member: discord.Member, duration: str, *, reason=None):
         try:
             duration, sdur = self.parse_duration(duration)
-            if duration:
-                await member.edit(mute=True, reason=reason)
-                await ctx.send(f"**Silence!** Пользователь {member.mention} замучен на {sdur}. Причина: {reason}")
 
-                # Сохраняем информацию о муте в базе данных
-                expires_at = datetime.datetime.utcnow() + duration
-                self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "mute", duration.total_seconds(), reason, expires_at.timestamp()))
-                self.db.commit()
-            else:
-                await member.edit(mute=True, reason=reason)
-                await ctx.send(f"Пользователь {member.mention} замучен навсегда. Причина: {reason}")
+            await member.edit(mute=True, reason=reason)
+            await ctx.send(f"**Silence!** Пользователь {member.mention} замучен на {sdur}. Причина: {reason}")
 
-                # Сохраняем информацию о муте в базе данных
-                self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "mute", None, reason, None))
-                self.db.commit()
+            expires_at = datetime.datetime.now(datetime.timezone.utc) + duration
+            self.cursor.execute("INSERT OR REPLACE INTO punishments (user_id, type, duration, reason, expires_at) VALUES (?, ?, ?, ?, ?)", (member.id, "mute", duration.total_seconds(), reason, expires_at.timestamp()))
+            self.db.commit()
 
         except discord.Forbidden:
             await ctx.send("У меня нет прав на мут этого пользователя.")
