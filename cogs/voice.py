@@ -241,7 +241,10 @@ class Voice(commands.Cog):
             channelID = voice[0]
             channel = self.bot.get_channel(channelID)
             await channel.edit(name = name)
-            await ctx.channel.send(f'{ctx.author.mention}, вы установили '+ '{} как название вашего канала.'.format(name))
+            await ctx.channel.send(
+                f'{ctx.author.mention}, вы установили '
+                + f'{name} как название вашего канала.'
+            )
             voice = c.execute("SELECT channelName FROM userSettings WHERE userID = ?", (id,)).fetchone()
             if voice is None:
                 c.execute("INSERT INTO userSettings VALUES (?, ?, ?)", (id,name,0))
