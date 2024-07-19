@@ -200,8 +200,10 @@ class VKSource:
 
         self.uploader = data.get('uploader')
         self.uploader_url = data.get('uploader_url')
+        # VKSource always gets unix utc timestamp on this field, but to be sure we check
         date = data.get('upload_date')
-        self.upload_date = f"<t:{date}> (<t:{date}:R>)"
+        if type(date) == str:
+            self.upload_date = f"<t:{date}> (<t:{date}:R>)"
         self.title = data.get('title')
         self.thumbnail = data.get('thumbnail')
         self.description = data.get('description')

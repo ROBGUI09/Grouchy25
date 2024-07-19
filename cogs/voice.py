@@ -5,9 +5,10 @@ import traceback
 import sqlite3
 import validators
 import dbuni
+import data
 
 def create_db():
-    c = dbuni('dbs/voice.db')
+    c = dbuni(os.path.join(data.DATABASES_FOLDER,'voice.db'))
     c.connect()
     c.execute('''CREATE TABLE IF NOT EXISTS "guild" (
         `guildID`       INTEGER,
@@ -44,7 +45,8 @@ class Voice(commands.Cog):
         c = self.conn
         guildID = member.guild.id
         voice = c.execute("SELECT voiceChannelID FROM guild WHERE guildID = ?", (guildID,)).fetchone()
-        if voice is None: return
+        if voice is None: 
+            return
 
         voiceID = voice[0]
         try:

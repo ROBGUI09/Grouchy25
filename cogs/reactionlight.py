@@ -99,6 +99,7 @@ class Database:
         self.database = database
         initialize(self.database)
 
+		# leaks prevented
         self.reactionrole_creation = {}
 
     def start_creation(self, user, channel):
@@ -158,7 +159,7 @@ class Database:
         try:
             tracker.commit()
         except sqlite3.Error as e:
-            logging.error(f"Database error occurred: {e}")
+            logging.error(f"Database error occurred while committing message_id {message_id}: {e}")
             return e
         del self.reactionrole_creation[f"{user}_{channel}"]
 

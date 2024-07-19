@@ -116,6 +116,8 @@ class ReputationCog(commands.Cog):
         self.bot = bot
         self.db = sqlite3.connect(os.path.join(data.DATABASES_FOLDER,'reputation.db'))
         self.cursor = self.db.cursor()
+
+        #no inputs, just create tables
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS reputation (
                 user_id INTEGER PRIMARY KEY,
