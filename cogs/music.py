@@ -773,6 +773,6 @@ class Music(commands.Cog):
         if not ctx.author.voice or not ctx.author.voice.channel:
             raise commands.CommandError('Вы не находитесь в голосовом каналею')
 
-        if ctx.voice_client:
-            if ctx.voice_client.channel != ctx.author.voice.channel:
-                raise commands.CommandError('Бот уже в канале.')
+        if ctx.voice_client and ctx.voice_client.channel != ctx.author.voice.channel:
+            raise commands.CommandError('Бот уже в канале.')
+
