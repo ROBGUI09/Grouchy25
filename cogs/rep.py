@@ -111,7 +111,7 @@ def str_time_to_seconds(str_time, language='ru'):
 class ReputationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db = sqlite3.connect('reputation.db')
+        self.db = sqlite3.connect('dbs/reputation.db')
         self.cursor = self.db.cursor()
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS reputation (
