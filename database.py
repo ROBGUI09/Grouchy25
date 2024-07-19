@@ -218,7 +218,7 @@ class Database:
         try:
             conn = sqlite3.connect(self.database)
             cursor = conn.cursor()
-            cursor.execute(f"SELECT message_id, channel FROM messages;")
+            cursor.execute("SELECT message_id, channel FROM messages;")
             all_messages = {}
             for row in cursor:
                 message_id = int(row[0])
