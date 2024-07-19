@@ -423,7 +423,6 @@ class VoiceState:
         self.voice = None
         self.next = asyncio.Event()
         self.songs = SongQueue()
-        self.terminate = False
 
         self.loop = "off"
         self.skip_votes = set()
@@ -486,7 +485,6 @@ class VoiceState:
 
         if self.is_playing:
             self.voice.stop()
-            self.terminate = True
 
     @logfc.logfc
     async def stop(self):
@@ -498,7 +496,6 @@ class VoiceState:
             if self.controlmsg != None:
                 await self.controlmsg.edit(view=None)
             self.voice = None
-            self.terminate = True
 
 
 class Music(commands.Cog):
