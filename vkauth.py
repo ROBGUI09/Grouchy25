@@ -55,8 +55,7 @@ class VkAndroidApi(object):
             )
             return self._send(url, params, method)
         except requests.exceptions.RequestException as e:
-            # Handle network errors
-            print(f"Network error: {e}")
+            logging.error(f"Network error: {e}")
             return {}
         except json.JSONDecodeError:
             # Handle JSON decoding errors
