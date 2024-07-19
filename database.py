@@ -102,7 +102,7 @@ class Database:
 
     def start_creation(self, user, channel):
         tracker = ReactionRoleCreationTracker(user, channel, self.database)
-        if not f"{user}_{channel}" in self.reactionrole_creation:
+        if f"{user}_{channel}" not in self.reactionrole_creation:
             self.reactionrole_creation[f"{user}_{channel}"] = tracker
             return True
         return False
