@@ -164,8 +164,8 @@ class Voice(commands.Cog):
     @commands.command(name="pv-unlock")
     async def unlock(self, ctx):
         c = self.conn
-        id = ctx.author.id
-        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (id,)).fetchone()
+        aid = ctx.author.id
+        voice = c.execute("SELECT voiceID FROM voiceChannel WHERE userID = ?", (aid,)).fetchone()
         if voice is None:
             await ctx.channel.send(f"{ctx.author.mention}, вы не владелец канала.")
         else:
