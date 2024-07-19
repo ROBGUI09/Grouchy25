@@ -35,7 +35,7 @@ def kick(bot):
             await ctx.send(f'{member} был кикнут с сервера.')
             await ctx.message.add_reaction(emoji='✅')
         except Exception as failkick:
-            await ctx.send("Не удалось кикнуть: " + str(failkick))
+            await ctx.send(f"Не удалось кикнуть: {str(failkick)}")
             await ctx.message.add_reaction(emoji='❌')
 
 
