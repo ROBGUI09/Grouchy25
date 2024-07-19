@@ -560,15 +560,15 @@ class ReactionLight(commands.Cog):
 
 	@commands.command(name="rr-abort")
 	async def abort(self, ctx):
-	    if isadmin(ctx.message.author):
-	        return await ctx.send("У вас нет админ роли.")
+		if isadmin(ctx.message.author):
+			return await ctx.send("У вас нет админ роли.")
 
-	    if aborted := db.abort(ctx.message.author.id, ctx.message.channel.id):
-	        await ctx.send("Добавление авто-роль сообщения отменено.")
-	    else:
-	        await ctx.send(
-	        	"Нет запущенных вами процессов создания роль-реакции сообщения в этом канале."
-	        )
+		if aborted := db.abort(ctx.message.author.id, ctx.message.channel.id):
+			await ctx.send("Добавление авто-роль сообщения отменено.")
+		else:
+			await ctx.send(
+				"Нет запущенных вами процессов создания роль-реакции сообщения в этом канале."
+			)
 			
 
 

@@ -67,22 +67,17 @@ def update_guilds(bot: Bot):
 
 
 def parse_time(time_string: str, regex: str = None):
-    if regex:
-        regex: re.Pattern = re.compile(regex)
-    else:
-        regex: re.Pattern = re.compile(r'^((?P<days>[\.\d]+?)d)?((?P<hours>[\.\d]+?)h)?((?P<minutes>[\.\d]+?)m)?((?P<seconds>[\.\d]+?)s)?$')
-    parts = regex.match(time_string)
-<<<<<<< HEAD
-    if parts is None:
-        raise AttributeError(f"Could not parse any time information from '{time_string}'.  Examples of valid strings: '16h', '2d8h5m20s', '7m4s'")
-=======
-    if parts is None:
-        raise ValueError(f"Could not parse any time information from '{time_string}'. Examples of valid strings: '16h', '2d8h5m20s', '7m4s'")
->>>>>>> a62e6a1497384f968dc57897e9087ff60513dcb6
-    time_params = {name: float(param) for name, param in parts.groupdict().items() if param}
-    try:
-        return datetime.timedelta(**time_params)
-    except Excpetion: return None
+    if regex:  
+        regex: re.Pattern = re.compile(regex)  
+    else:  
+        regex: re.Pattern = re.compile(r'^((?P<days>[\.\d]+?)d)?((?P<hours>[\.\d]+?)h)?((?P<minutes>[\.\d]+?)m)?((?P<seconds>[\.\d]+?)s)?$')  
+    parts = regex.match(time_string)  
+    assert parts is not None, f"Could not parse any time information from '{time_string}'.  Examples of valid strings: '16h', '2d8h5m20s', '7m4s'"  
+    time_params = {name: float(param) for name, param in parts.groupdict().items() if param}  
+    try:  
+        return datetime.timedelta(**time_params)  
+    except Exception:  
+        return None  
 
 
 def parse_command(command: str):
