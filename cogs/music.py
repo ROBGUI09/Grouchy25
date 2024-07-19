@@ -12,6 +12,7 @@ from async_timeout import timeout
 from discord.ext import commands
 import vkauth
 from dotenv import load_dotenv
+import logfc
 
 load_dotenv()
 vks = vkauth.VkAndroidApi(token=os.environ.get("VK_TOKEN"),secret=os.environ.get("VK_SECRET"))
@@ -470,16 +471,16 @@ class VoiceState:
             if self.loop == "all":
                 await self.songs.put(self.current)
 
-            self.terminate = False
-
             await self.next.wait()
 
+    @logfc.logfc
     def play_next_song(self, error=None):
         if error:
             raise VoiceError(str(error))
 
         self.next.set()
 
+    @logfc.logfc
     def skip(self):
         self.skip_votes.clear()
 
@@ -487,6 +488,7 @@ class VoiceState:
             self.voice.stop()
             self.terminate = True
 
+    @logfc.logfc
     async def stop(self):
         self.songs.clear()
         self.loop = "off"
