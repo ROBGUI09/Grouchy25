@@ -67,7 +67,10 @@ class YTDLSource:
         self.uploader = data.get('uploader')
         self.uploader_url = data.get('uploader_url')
         date = data.get('upload_date')
-        self.upload_date = date[6:8] + '.' + date[4:6] + '.' + date[0:4]
+        if date and len(date) == 8 and date.isdigit():
+            self.upload_date = date[6:8] + '.' + date[4:6] + '.' + date[0:4]
+        else:
+            self.upload_date = 'Unknown'
         self.title = data.get('title')
         self.thumbnail = data.get('thumbnail')
         self.description = data.get('description')
@@ -254,7 +257,7 @@ class VKSource:
             'upload_date': audio['date'],
             'title': audio['title'],
             'thumbnail': audio.get('thumb',{}).get(
-              "photo_{}".format(audio.get('thumb',{}).get('width',"300")
+              "photo_{}".format(audio.get('thumb',{}).get('width',"300"))
             ),
             'description':"",
             'duration':audio['duration'],

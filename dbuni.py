@@ -1,38 +1,66 @@
 import sqlite3
-import asyncio
+import threading
+from queue import Queue
 
 class Database:
-    def __init__(self, db_path):
+    def __init__(self, db_path, pool_size=5):
         self.db_path = db_path
-        self.conn = None
+        self.pool_size = pool_size
+        self.pool = Queue(maxsize=pool_size)
+        self.lock = threading.Lock()
+        self._initialize_pool()
 
-    def connect(self):
-        self.conn = sqlite3.connect(self.db_path)
+    def _initialize_pool(self):
+        for _ in range(self.pool_size):
+            conn = sqlite3.connect(self.db_path, check_same_thread=False)
+            self.pool.put(conn)
 
-    def execute(self, query, *args):
-        if not self.conn:
-            self.connect()
-        cursor = self.conn.cursor()
+    def _get_connection(self):
+        with self.lock:
+            return self.pool.get()
+
+    def _return_connection(self, conn):
+        with self.lock:
+            self.pool.put(conn)
+
+    def open(self):
+        return self._get_connection()
+
+    def close(self, conn):
+        self._return_connection(conn)
+
+    def execute(self, query, params=None):
+        conn = self.open()
+        cursor = conn.cursor()
         try:
-            cursor.execute(query, args)
-            self.conn.commit()
-            return cursor
-        except Exception as e:
-            print(f"Ошибка выполнения SQL запроса: {e}")
-            return None
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            conn.commit()
+        finally:
+            self.close(conn)
 
-    def fetchall(self, query, *args):
-        cursor = self.execute(query, *args)
-        if cursor:
-            return cursor.fetchall()
-        return None
-
-    def fetchone(self, query, *args):
-        cursor = self.execute(query, *args)
-        if cursor:
+    def fetchone(self, query, params=None):
+        conn = self.open()
+        cursor = conn.cursor()
+        try:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
             return cursor.fetchone()
-        return None
+        finally:
+            self.close(conn)
 
-    def close(self):
-        if self.conn:
-            self.conn.close()
+    def fetchall(self, query, params=None):
+        conn = self.open()
+        cursor = conn.cursor()
+        try:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            return cursor.fetchall()
+        finally:
+            self.close(conn)

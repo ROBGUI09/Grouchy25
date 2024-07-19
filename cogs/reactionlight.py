@@ -581,7 +581,7 @@ class ReactionLight(commands.Cog):
 		msg_values = ctx.message.content.split()
 		if len(msg_values) < 2:
 			await ctx.send(
-				f"**Напиши** `s!rr-edit #имя-канала` чтобы начать. Замени"
+				"**Напиши** `s!rr-edit #имя-канала` чтобы начать. Замени"
 				" `#имя-канала` на канал, в котором находится сообщение роль-реакции сообщения, которое вы хотите отредактировать."
 			)
 			return
