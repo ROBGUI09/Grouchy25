@@ -71,8 +71,6 @@ def isadmin(user):
 				
 @bot.event
 async def on_ready():
-#	chan = bot.get_channel(997789286596366386)
-#	await chan.send("Бот в сети! :partying_face:")
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="s!help"))
 	print("Grouchy is online!")
 	
@@ -112,13 +110,6 @@ async def ping(ctx):
 async def donate(ctx):
 	await ctx.message.reply("Вы можете безвозмездно нам задонатить по этому адресу: <https://www.donationalerts.com/r/robert300>")
 	
-#@bot.command()
-#async def hello(ctx):
-#	await ctx.message.reply(random.choice(hellotexts))
-	
-#@bot.command()
-#async def howru(ctx):
-#	await ctx.message.reply(random.choice(howrutexts))
 	
 @bot.command(name="8ball")
 async def ball(ctx, *arg):
