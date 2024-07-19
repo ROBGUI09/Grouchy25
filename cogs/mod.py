@@ -3,13 +3,11 @@ import time
 import psutil
 from discord.ext import commands as cmd
 
-
 def setup(bot):
     """ Initialize commands """
     prune(bot)
     kick(bot)
     ban(bot)
-
 
 def prune(bot):
     @bot.command(aliases=['purge', 'clear', 'cls'])
@@ -18,12 +16,21 @@ def prune(bot):
         if amount == 0:
             await ctx.send("Укажите количество сообщений для удаления.")
             await ctx.message.add_reaction(emoji='❌')
-        elif amount <= 0:  # lower then 0
+        elif amount <= 0:  # lower than 0
             await ctx.send("Количество сообщений для удаления должно быть больше 0.")
             await ctx.message.add_reaction(emoji='❌')
         else:
-            await ctx.message.add_reaction(emoji='✅')
-            await ctx.channel.purge(limit=amount + 1)
+            confirmation_message = await ctx.send(f"Вы уверены, что хотите удалить {amount} сообщений? Ответьте 'да' для подтверждения.")
+            
+            def check(m):
+                return m.author == ctx.author and m.content.lower() == 'да' and m.channel == ctx.channel
+            
+            try:
+                await bot.wait_for('message', check=check, timeout=30.0)
+                await ctx.channel.purge(limit=amount)
+                await ctx.send(f"Удалено {amount} сообщений.")
+            except asyncio.TimeoutError:
+                await ctx.send("Время ожидания подтверждения истекло. Операция отменена.")
 
 
 def kick(bot):

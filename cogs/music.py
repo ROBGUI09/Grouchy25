@@ -27,6 +27,14 @@ class VoiceError(Exception):
 class YTDLError(Exception):
     pass
 
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+audio_filter = config.get('AudioSettings', 'filter', fallback='bass=g=-10')
+
+
 class YTDLSource:
     YTDL_OPTIONS = {
         'format': 'bestaudio/best',
@@ -45,18 +53,8 @@ class YTDLSource:
     }
 
     FFMPEG_OPTIONS = {
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-import configparser
-
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-audio_filter = config.get('AudioSettings', 'filter', fallback='bass=g=-10')
-FFMPEG_OPTIONS = {
-    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-    'options': f'-af "{audio_filter}" -vn',
-}
-}
+      'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+      'options': f'-af "{audio_filter}" -vn'
     }
 
     ytdl = youtube_dl.YoutubeDL(YTDL_OPTIONS)
@@ -191,7 +189,7 @@ class VKError(Exception):
 class VKSource:
     FFMPEG_OPTIONS = {
         'before_options': '-reconnect 1 -http_persistent 0',
-        'options': '-af "bass=g=-10" -vn',
+        'options': f'-af "{audio_filter}" -vn'
     }
 
     def __init__(self, ctx: commands.Context, data: dict):
