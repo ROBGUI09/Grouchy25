@@ -160,12 +160,14 @@ class YTDLSource:
         if 'entries' not in data:
             data = {"entries":data}
 
-        res = []
-
-        for process_info in data['entries']:
-            res.append([process_info['title'],process_info['uploader'],process_info['webpage_url']])
-
-        return res
+        return [
+            [
+                process_info['title'],
+                process_info['uploader'],
+                process_info['webpage_url'],
+            ]
+            for process_info in data['entries']
+        ]
 
     @staticmethod
     def parse_duration(duration: int):
