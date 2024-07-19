@@ -768,7 +768,7 @@ class Music(commands.Cog):
                 except VKError as e:
                     await ctx.send(f'Во время обработки запроса произошла ошибка: {e}')
                 else:
-                    if source == None:
+                    if source is None:
                         dead = True
                         continue
                     song = Song(source)
