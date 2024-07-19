@@ -10,6 +10,8 @@ from cogs import voice, rep, dota, roulette
 import logging
 import requests
 from dotenv import load_dotenv
+from pathlib import Path
+Path("dbs").mkdir(parents=True, exist_ok=True)
 
 load_dotenv()
 logger = logging.getLogger()
