@@ -253,7 +253,7 @@ class Voice(commands.Cog):
         x = False
         c = self.conn
         channel = ctx.author.voice.channel
-        if channel == None:
+        if channel is None:
             await ctx.channel.send(f"{ctx.author.mention} вы не в голосовом канале.")
         else:
             id = ctx.author.id
