@@ -5,7 +5,7 @@ from data import *
 import os
 import utils, time
 import asyncio
-from cogs import voice, rep, dota, reactionlight, music
+from cogs import voice, rep, dota, music
 import logging
 import requests
 from dotenv import load_dotenv
@@ -152,7 +152,7 @@ async def setup_cogs():
 	await bot.add_cog(voice.Voice(bot))
 	await bot.add_cog(rep.ReputationCog(bot))
 	await bot.add_cog(dota.DotaInfo(bot))
-	await bot.add_cog(reactionlight.ReactionLight(bot))
+#	await bot.add_cog(reactionlight.ReactionLight(bot))
 #	await bot.add_cog(speech.Speech(bot))
 	#bot.add_cog(icon.ServerIcon(bot))
 #	mod.setup(bot)

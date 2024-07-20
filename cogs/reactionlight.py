@@ -313,8 +313,18 @@ class ReactionLight(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 
+	async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
+		await ctx.send(f'An error occurred: {error}')
+		traceback.print_exception(error)
+
 	async def step1(self,message):
 		bot = self.bot
+
+		user = str(message.author.id)
+		channel = str(message.channel.id)
+		step = db.step(user, channel)
+		msg = message.content.split()
+
 		try:
 			server = bot.get_guild(message.guild.id)
 			bot_user = server.get_member(bot.user.id)
@@ -342,6 +352,12 @@ class ReactionLight(commands.Cog):
 
 	async def step2(self,message):
 		bot = self.bot
+
+		user = str(message.author.id)
+		channel = str(message.channel.id)
+		step = db.step(user, channel)
+		msg = message.content.split()
+
 		if msg[0].lower() != "готово":
 			# Stores reaction-role combinations until "done" is received
 			try:
@@ -368,7 +384,7 @@ class ReactionLight(commands.Cog):
 				description="Подпись_сообщения",
 				colour=botcolour,
 			)
-			selector_embed.set_footer(text=f"{botname}", icon_url=logo)
+			selector_embed.set_footer(text=data.botname, icon_url=data.logo)
 			await message.channel.send(
 				"Что вы хотите видеть в сообщение?\nФорматирование таково:"
 				" `Текст // Заглавие_сообщения // Подпись_сообщения`.\n\n`Заглавие_сообщения`"
@@ -379,12 +395,19 @@ class ReactionLight(commands.Cog):
 			)
 
 	async def step3(self, message):
+		bot = self.bot
+
+		user = str(message.author.id)
+		channel = str(message.channel.id)
+		step = db.step(user, channel)
+		msg = message.content.split()
+
 		msg_values = message.content.split(" // ")
 		selector_msg_body = (
 			msg_values[0] if msg_values[0].lower() != "none" else None
 		)
 		selector_embed = discord.Embed(colour=botcolour)
-		selector_embed.set_footer(text=f"{botname}", icon_url=logo)
+		selector_embed.set_footer(text=data.botname, icon_url=data.logo)
 		if len(msg_values) > 1:
 
 			if msg_values[1].lower() != "none":
@@ -444,7 +467,6 @@ class ReactionLight(commands.Cog):
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		bot = self.bot
-
 		if not isadmin(message.author): return 
 
 		user = str(message.author.id)
@@ -455,10 +477,13 @@ class ReactionLight(commands.Cog):
 		if step is None: return 
 		# Checks if the setup process was started before.
 		# If it was not, it ignores the message.
-		if step == 0: db.step0(user, channel)
-		elif step == 1: await self.step1(message)
-		elif step == 2: await self.step2(message)
-		elif step == 3: await self.step3(message)
+		try:
+			if step == 0: db.step0(user, channel)
+			elif step == 1: await self.step1(message)
+			elif step == 2: await self.step2(message)
+			elif step == 3: await self.step3(message)
+		except Exception as e:
+			traceback.print_exception(e)
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
