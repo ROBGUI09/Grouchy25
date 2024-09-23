@@ -6,6 +6,8 @@ import datetime
 import asyncio
 import re
 import data, os
+import logging
+import traceback
 
 botcolour = data.botcolour
 
@@ -45,6 +47,7 @@ def str_time_to_seconds(str_time, language='ru'):
         'mins': 'minutes',
         'minute': 'minutes',
         'minutes': 'minutes',
+        'м': 'minutes',
         'мин': 'minutes',
         'минута': 'minutes',
         'минуту': 'minutes',
@@ -145,6 +148,10 @@ class ReputationCog(commands.Cog):
             self.check_punishments_task = self.bot.loop.create_task(self.check_punishments())
             print("ran checker")
 
+    async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        await ctx.send(f'An error occurred: {error}')
+        logging.error(error, exc_info=True)
+
     def parse_duration(self, duration):
         return str_time_to_seconds(duration)
 
@@ -168,8 +175,9 @@ class ReputationCog(commands.Cog):
                         try:
                             member = await self.bot.fetch_user(user_id)
                             guild = self.bot.get_guild(member.guild.id)
+                            role = guild.get_role(1262677826738327583)
 
-                            await guild.get_member(user_id).edit(mute=False, reason="Срок мута истек")
+                            await guild.get_member(user_id).remove_roles(role, reason="Срок мута истек")
                         except discord.HTTPException:
                             pass
                     case "kick":
@@ -204,6 +212,8 @@ class ReputationCog(commands.Cog):
 
         except discord.Forbidden:
             await ctx.send("У меня нет прав на бан этого пользователя.")
+        except Exception as e:
+            traceback.print_exception(e)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -211,7 +221,9 @@ class ReputationCog(commands.Cog):
         try:
             duration, sdur = self.parse_duration(duration)
 
-            await member.edit(mute=True, reason=reason)
+            role = ctx.message.guild.get_role(1262677826738327583)
+            print(role)
+            await member.add_roles(member, role)
             await ctx.send(f"**Silence!** Пользователь {member.mention} замучен на {sdur}. Причина: {reason}")
 
             expires_at = datetime.datetime.now(datetime.timezone.utc) + duration if duration else None
@@ -220,6 +232,8 @@ class ReputationCog(commands.Cog):
 
         except discord.Forbidden:
             await ctx.send("У меня нет прав на мут этого пользователя.")
+        except Exception as e:
+            traceback.print_exception(e)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -233,6 +247,8 @@ class ReputationCog(commands.Cog):
             self.db.commit()
         except discord.Forbidden:
             await ctx.send("У меня нет прав на размут этого пользователя.")
+        except Exception as e:
+            traceback.print_exception(e)
 
     @commands.command()
     async def report(self, ctx, member: discord.Member, *, reason=None):

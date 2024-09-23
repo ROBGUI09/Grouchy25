@@ -6,6 +6,7 @@ import sqlite3
 import validators
 import dbuni
 import data, os
+import logging
 
 def create_db():
     c = dbuni.Database(os.path.join(data.DATABASES_FOLDER,'voice.db'))
@@ -85,7 +86,7 @@ class Voice(commands.Cog):
                 await asyncio.sleep(3)
                 c.execute('DELETE FROM voiceChannel WHERE userID=?', (mid,))
         except Exception as e:
-            traceback.print_exc(e)
+            logging.error(e, exc_info=True)
 
     @commands.command(name="pv-setup")
     @commands.has_permissions(administrator=True)
@@ -134,7 +135,7 @@ class Voice(commands.Cog):
 
     @setup.error
     async def info_error(self, ctx, error):
-        print(error)
+        logging.error(error, exc_info=True)
 
     @commands.command(name="pv-lock")
     async def lock(self, ctx):

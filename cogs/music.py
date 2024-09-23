@@ -13,6 +13,7 @@ from discord.ext import commands
 import vkauth
 from dotenv import load_dotenv
 import logfc
+import logging
 
 load_dotenv()
 vks = vkauth.VkAndroidApi(token=os.environ.get("VK_TOKEN"),secret=os.environ.get("VK_SECRET"))
@@ -434,7 +435,7 @@ class VoiceState:
         try:
             _ = task.result()
         except Exception as e:
-            traceback.print_exception(e)
+            logging.error(e, exc_info=True)
 
     def __del__(self):
         self.audio_player.cancel()
@@ -526,7 +527,7 @@ class Music(commands.Cog):
 
     async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
         await ctx.send(f'An error occurred: {error}')
-        traceback.print_exception(error)
+        logging.error(error, exc_info=True)
 
     @commands.command(name='join', invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
